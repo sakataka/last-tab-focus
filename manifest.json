@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Last Tab Focus",
+  "version": "1.0.0",
+  "description": "Automatically switches focus to the previously focused tab when closing a tab, improving browsing efficiency",
+  "author": "Chrome Extension Developer",
+  
+  "permissions": [
+    "tabs"
+  ],
+  
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  
+  "minimum_chrome_version": "88"
+}

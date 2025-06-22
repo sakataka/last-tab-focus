@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Last Tab Focus Extension Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-case { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Last Tab Focus Extension Test Page</h1>
+    
+    <div class="test-case">
+        <h3>Test Instructions</h3>
+        <ol>
+            <li>Load this extension in Chrome developer mode</li>
+            <li>Open multiple tabs</li>
+            <li>Switch between tabs to build history</li>
+            <li>Close an active tab and check if focus switches to the previous tab</li>
+            <li>Check browser console for extension logs</li>
+        </ol>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test Tabs</h3>
+        <button onclick="openTestTab('Tab A')">Open Tab A</button>
+        <button onclick="openTestTab('Tab B')">Open Tab B</button>
+        <button onclick="openTestTab('Tab C')">Open Tab C</button>
+        <button onclick="closeCurrentTab()">Close Current Tab</button>
+    </div>
+    
+    <div class="test-case">
+        <h3>Expected Behavior</h3>
+        <ul>
+            <li>When you close an active tab, focus should switch to the previously active tab</li>
+            <li>Extension should maintain a history of tab activations</li>
+            <li>Console should show detailed logs of tab operations</li>
+            <li>Multiple windows should be handled correctly</li>
+        </ul>
+    </div>
+    
+    <script>
+        function openTestTab(name) {
+            const url = `data:text/html,<html><head><title>${name}</title></head><body><h1>${name}</h1><p>Test tab created at ${new Date().toLocaleTimeString()}</p></body></html>`;
+            window.open(url, '_blank');
+        }
+        
+        function closeCurrentTab() {
+            window.close();
+        }
+        
+        console.log('Test page loaded at', new Date().toISOString());
+    </script>
+</body>
+</html>
