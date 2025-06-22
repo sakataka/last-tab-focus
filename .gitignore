@@ -12,21 +12,83 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Chrome extension development
 *.crx
 *.pem
+*.key
+web-ext-artifacts/
+
+# Build and distribution
+build/
+dist/
+*.zip
+*.tar.gz
 
 # Temporary files
 *.tmp
 *.temp
+.tmp/
+.temp/
 
-# Node modules (if needed in future)
+# Node modules and package management
 node_modules/
+.npm
+.yarn/
+.pnp.*
+
+# Environment and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.secret
+config.json
+secrets.json
+
+# Development and testing
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Store assets (sensitive)
+store-assets/private/
+store-assets/screenshots-raw/
+*.psd
+*.ai
+*.sketch
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # Claude assistant files
 .claude/
+
+# Development-only files and directories
+dev/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# System files
+*.lnk
+desktop.ini

@@ -12,9 +12,26 @@ Chrome extension that automatically switches focus to the previously focused tab
 
 ## Installation
 
+### From Chrome Web Store (Recommended)
+
+*Coming soon - extension is currently under review*
+
+### From GitHub Releases
+
+1. Download the latest `.zip` file from the [Releases page](../../releases)
+2. Extract the ZIP file to a folder
+3. Open Chrome and navigate to `chrome://extensions/`
+4. Enable "Developer mode" in the top right
+5. Click "Load unpacked" and select the extracted folder
+6. The extension will be loaded and ready to use
+
 ### From Source (Developer Mode)
 
-1. Download or clone this repository
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/last-tab-focus.git
+   cd last-tab-focus
+   ```
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
 4. Click "Load unpacked" and select the project directory
@@ -41,20 +58,45 @@ last-tab-focus/
 ├── manifest.json          # Extension configuration
 ├── background.js          # Main functionality
 ├── icons/                 # Extension icons
-├── test-basic.html        # Basic functionality test
-├── test-multiwindow.html  # Multi-window test
-├── TESTING.md            # Testing guide
-└── README.md             # This file
+├── LICENSE.md            # MIT License
+├── PRIVACY.md            # Privacy Policy
+├── README.md             # This file
+└── dev/                  # Development files (not included in releases)
+    ├── test-*.html       # Test files
+    ├── TESTING.md        # Testing guide
+    └── ...               # Other development tools
 ```
 
 ## Development
 
+### Prerequisites
+
+- Chrome Browser (version 88 or higher)
+- Git (for version control)
+
+### Setup for Development
+
+1. Fork this repository on GitHub
+2. Clone your fork:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/last-tab-focus.git
+   cd last-tab-focus
+   ```
+3. Load the extension in Chrome:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked" and select the project directory
+
 ### Testing
 
-1. Load the extension in developer mode
-2. Open `test-basic.html` for basic functionality testing
-3. Open `test-multiwindow.html` for multi-window testing
+The test files are located in the `dev/` directory:
+
+1. Load the extension in developer mode (see setup above)
+2. Open `dev/test-basic.html` for basic functionality testing
+3. Open `dev/test-multiwindow.html` for multi-window testing
 4. Check browser console and service worker logs for debugging
+
+See `dev/TESTING.md` for detailed testing procedures.
 
 ### Debugging
 
@@ -62,6 +104,13 @@ last-tab-focus/
 2. Find "Last Tab Focus" extension
 3. Click "service worker" inspection link
 4. View logs in the developer console
+
+### Making Changes
+
+1. Make your changes to the source code
+2. Test thoroughly using the test files
+3. Ensure no console errors in service worker
+4. Test in different scenarios (single window, multiple windows, many tabs)
 
 ## Implementation Details
 
@@ -91,11 +140,49 @@ MIT License - Feel free to use and modify as needed.
 
 ## Contributing
 
+We welcome contributions! Please follow these steps:
+
+### Reporting Issues
+
+1. Check existing issues to avoid duplicates
+2. Use the issue template (if available)
+3. Include:
+   - Chrome version
+   - Extension version
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Console logs (if applicable)
+
+### Contributing Code
+
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+2. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. Make your changes following the existing code style
+4. Test thoroughly:
+   - Use the test files in `dev/`
+   - Test with multiple tabs and windows
+   - Check service worker console for errors
+5. Commit your changes with clear messages
+6. Push to your fork and submit a pull request
+
+### Code Guidelines
+
+- Follow the existing code style and structure
+- Add comments for complex logic
+- Include error handling for new features
+- Maintain compatibility with Chrome 88+
+- Keep the extension lightweight and fast
+
+### Pull Request Process
+
+1. Ensure your code passes all tests
+2. Update documentation if needed
+3. Keep PRs focused on a single feature/fix
+4. Describe what your PR does and why
+5. Reference any related issues
 
 ## Support
 

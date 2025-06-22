@@ -1,0 +1,116 @@
+name: Feature Request
+description: Suggest a new feature or improvement for Last Tab Focus
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have searched existing issues and discussions for similar requests
+          required: true
+        - label: I have considered if this feature aligns with the extension's core purpose (tab focus management)
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: |
+        What problem would this feature solve? What use case does it address?
+        Please be specific about the scenario where this feature would be helpful.
+      placeholder: |
+        Example: "When I have many tabs open across multiple windows, I often lose track of which tab I was working on before. It would be helpful if..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: |
+        Describe your proposed solution or feature in detail.
+        How should it work? What should the user experience be like?
+      placeholder: |
+        Example: "The extension could provide a keyboard shortcut (Ctrl+Shift+T) that shows a popup with the last 5 tabs I've visited, allowing me to quickly jump to any of them..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: |
+        Have you considered any alternative approaches or workarounds?
+        Are there existing features that partially address this need?
+      placeholder: "I've tried using Chrome's built-in tab search, but it doesn't help with..."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Nice to have - Would be a minor improvement
+        - Useful - Would enhance my workflow
+        - Important - Would significantly improve my experience
+        - Critical - Essential for my use case
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Simple - Minor change or addition
+        - Medium - Moderate development effort
+        - Complex - Significant development work
+        - Unknown - Not sure about implementation difficulty
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-notes
+    attributes:
+      label: Technical Considerations
+      description: |
+        If you have technical knowledge, please share any implementation ideas or concerns.
+        This could include Chrome API usage, performance considerations, etc.
+      placeholder: "This might require using the chrome.commands API for keyboard shortcuts..."
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups or Examples
+      description: |
+        If applicable, provide mockups, sketches, or examples from other extensions/applications
+        that demonstrate the desired functionality.
+      placeholder: "You can drag and drop images here, or provide links to examples..."
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: Implementation Willingness
+      description: Would you be interested in helping implement this feature?
+      options:
+        - label: I would be willing to help implement this feature
+        - label: I would be willing to test this feature once implemented
+        - label: I can provide additional feedback and requirements as needed
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: |
+        Add any other context, related issues, or information about the feature request.
+        This could include links to similar features in other extensions, research, etc.
+      placeholder: "This feature is similar to what Extension X does, but would be better because..."

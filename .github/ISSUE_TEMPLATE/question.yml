@@ -1,0 +1,89 @@
+name: Question or Support
+description: Ask a question about using or developing Last Tab Focus
+title: "[Question] "
+labels: ["question", "needs-response"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about Last Tab Focus? We're here to help! Please provide details about what you need assistance with.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm you have completed these steps
+      options:
+        - label: I have read the README.md file
+          required: true
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have checked the documentation in the repository
+          required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What type of question or support do you need?
+      options:
+        - Installation - How to install or set up the extension
+        - Usage - How to use specific features
+        - Development - Questions about contributing or developing
+        - Troubleshooting - Something isn't working as expected
+        - Configuration - How to configure or customize behavior
+        - Compatibility - Browser or system compatibility questions
+        - Other - General questions
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: Please describe your question or what you need help with
+      placeholder: "I'm trying to understand how the extension handles... / I'm having trouble with... / Can you explain how to..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Details
+      description: |
+        Please provide any relevant context that might help us answer your question.
+        This could include your setup, what you've tried, error messages, etc.
+      placeholder: |
+        - Chrome version: 120.0.6099.71
+        - Extension version: 1.0.0
+        - What I've tried: ...
+        - Error messages: ...
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: What You're Trying to Achieve
+      description: |
+        What are you ultimately trying to accomplish? Understanding your goal helps us provide better assistance.
+      placeholder: "I want to be able to... / I'm expecting the extension to... / My goal is to..."
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this question for you?
+      options:
+        - Low - Just curious, no rush
+        - Medium - Would like to know soon
+        - High - Blocking my workflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: |
+        Any other information that might be helpful for answering your question.
+        Screenshots, logs, or examples are welcome!
+      placeholder: "Additional context, screenshots, or examples..."
