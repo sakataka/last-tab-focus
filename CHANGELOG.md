@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.1] - 2026-03-29
+
+### Fixed
+- Corrected focus restoration when closing tabs opened in sequence, such as `A -> B -> C`, so closing `C` returns to `B` and closing `B` returns to `A`
+- Prevent close-induced transient activations from polluting the restore history
+
+### Changed
+- Added opener-aware fallback logic for edge cases where the previous tab is not still in focus history
+- Rewrote project and store documentation to describe the extension as a single-purpose last-used-tab restore tool
+- Updated the release package target to `1.1.1`
+
 ## [1.1.0] - 2026-03-29
 
 ### Changed

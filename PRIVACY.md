@@ -13,6 +13,7 @@ Last Tab Focus is a Chrome extension designed with a single purpose: to automati
 **We collect NO personal data.** The extension only processes:
 
 - Tab IDs and window IDs provided by Chrome's Tab API
+- Tab opener relationships used to return to the previously used tab after closing
 - Tab focus history within the current browser session
 
 ### How We Use Data

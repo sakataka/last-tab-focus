@@ -5,10 +5,22 @@ import {
   MAX_HISTORY_SIZE,
   addToWindowHistory,
   getWindowHistory,
+  normalizeActivationByWindow,
+  normalizeTabMetadata,
   normalizeWindowHistory,
+  pruneActivationByWindow,
+  pruneTabMetadata,
   pruneWindowHistory,
+  removeTabFromActivationByWindow,
   removeTabFromAllWindowHistories,
+  removeTabMetadata,
+  removeWindowActivation,
   removeWindowHistory,
+  removeWindowTabMetadata,
+  resolveCloseRestorePlan,
+  setActivationRecord,
+  setWindowHistory,
+  upsertTabMetadata,
 } from './history.mjs';
 
 test('normalizeWindowHistory removes invalid values and duplicate tab ids', () => {
@@ -21,6 +33,28 @@ test('normalizeWindowHistory removes invalid values and duplicate tab ids', () =
 
   assert.deepEqual(history, {
     '1': [5, 2, 9],
+  });
+});
+
+test('setWindowHistory replaces one window entry and removes it when empty', () => {
+  let history = setWindowHistory(
+    {
+      '1': [3, 2, 1],
+      '2': [8],
+    },
+    1,
+    [9, 7, 7, 5],
+  );
+
+  assert.deepEqual(history, {
+    '1': [9, 7, 5],
+    '2': [8],
+  });
+
+  history = setWindowHistory(history, 1, []);
+
+  assert.deepEqual(history, {
+    '2': [8],
   });
 });
 
@@ -83,5 +117,158 @@ test('pruneWindowHistory removes tabs that are closed or moved to another window
   assert.deepEqual(history, {
     '1': [2],
     '2': [9, 8],
+  });
+});
+
+test('tab metadata is normalized, updated, and pruned', () => {
+  let metadata = normalizeTabMetadata({
+    '1': { windowId: 2, openerTabId: 8 },
+    'bad': { windowId: 3, openerTabId: 2 },
+    '4': { windowId: -1, openerTabId: 1 },
+  });
+
+  assert.deepEqual(metadata, {
+    '1': { windowId: 2, openerTabId: 8 },
+  });
+
+  metadata = upsertTabMetadata(metadata, { id: 5, windowId: 2, openerTabId: 1 });
+  metadata = removeTabMetadata(metadata, 1);
+
+  assert.deepEqual(metadata, {
+    '5': { windowId: 2, openerTabId: 1 },
+  });
+
+  metadata = pruneTabMetadata(metadata, {
+    5: { id: 5, windowId: 2 },
+  });
+
+  assert.deepEqual(metadata, {
+    '5': { windowId: 2, openerTabId: null },
+  });
+
+  metadata = removeWindowTabMetadata(metadata, 2);
+
+  assert.deepEqual(metadata, {});
+});
+
+test('activation records are normalized and pruned', () => {
+  let activationByWindow = normalizeActivationByWindow({
+    '1': {
+      tabId: 5,
+      eventTime: 1000,
+      previousHistory: [4, 3, 4],
+    },
+    x: {
+      tabId: 9,
+      eventTime: 1,
+      previousHistory: [8],
+    },
+  });
+
+  activationByWindow = setActivationRecord(activationByWindow, 2, {
+    tabId: 8,
+    eventTime: 1200,
+    previousHistory: [8, 7, 7],
+  });
+
+  activationByWindow = removeTabFromActivationByWindow(activationByWindow, 3);
+
+  assert.deepEqual(activationByWindow, {
+    '1': { tabId: 5, eventTime: 1000, previousHistory: [4] },
+    '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 7] },
+  });
+
+  activationByWindow = pruneActivationByWindow(activationByWindow, {
+    5: { id: 5, windowId: 1 },
+    7: { id: 7, windowId: 2 },
+    8: { id: 8, windowId: 2 },
+  });
+
+  assert.deepEqual(activationByWindow, {
+    '1': { tabId: 5, eventTime: 1000, previousHistory: [] },
+    '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 7] },
+  });
+
+  activationByWindow = removeWindowActivation(activationByWindow, 1);
+
+  assert.deepEqual(activationByWindow, {
+    '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 7] },
+  });
+});
+
+test('resolveCloseRestorePlan ignores close-induced transient activation', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '1': [40, 30, 20, 10],
+    },
+    windowId: 1,
+    removedTabId: 30,
+    lastActivationByWindow: {
+      '1': {
+        tabId: 40,
+        eventTime: 2000,
+        previousHistory: [30, 20, 10],
+      },
+    },
+    tabMetadata: {
+      '30': { windowId: 1, openerTabId: 20 },
+    },
+    removalTime: 2200,
+    transientActivationWindowMs: 1000,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {
+      '1': [20, 10],
+    },
+    restoreTargetTabId: 20,
+    removedWasMostRecent: true,
+    usedTransientActivation: true,
+  });
+});
+
+test('resolveCloseRestorePlan falls back to opener when history is empty after close', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '1': [30],
+    },
+    windowId: 1,
+    removedTabId: 30,
+    lastActivationByWindow: {},
+    tabMetadata: {
+      '30': { windowId: 1, openerTabId: 20 },
+    },
+    removalTime: 3000,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {},
+    restoreTargetTabId: 20,
+    removedWasMostRecent: true,
+    usedTransientActivation: false,
+  });
+});
+
+test('resolveCloseRestorePlan does not restore when a background tab is closed', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '1': [30, 20, 10],
+    },
+    windowId: 1,
+    removedTabId: 10,
+    lastActivationByWindow: {},
+    tabMetadata: {
+      '10': { windowId: 1, openerTabId: 20 },
+    },
+    removalTime: 3000,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {
+      '1': [30, 20],
+    },
+    restoreTargetTabId: null,
+    removedWasMostRecent: false,
+    usedTransientActivation: false,
   });
 });

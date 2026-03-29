@@ -2,37 +2,30 @@
 
 ## Summary
 
-Last Tab Focus is a lightweight Chrome extension that switches back to the tab you were actually using before when you close the current tab.
+Last Tab Focus is a Chrome extension dedicated to a single behavior: when you close the current tab, it restores focus to the tab you were using just before it.
 
-Chrome often moves focus by tab order. This extension restores focus by your recent activity instead, so tab closing feels more natural and predictable.
+Chrome usually moves focus by tab order. This extension uses recent tab activity instead.
 
 ## Key Features
 
-### Smart Tab Switching
+### Focused Scope
 
-- Focuses the most recently used tab when you close the current tab
-- Uses your real tab activity instead of simple left/right tab order
+- Built specifically for restoring the last used tab on close
+- Does not try to replace broader tab-management extensions
 
-### Window-Aware Behavior
+### Tab Restore Behavior
 
-- Restores focus only within the same browser window
-- Keeps tab history separate for each window
+- Restores the last used tab instead of the next tab in order
+- Keeps the behavior limited to the same browser window
 
-### Reliable in Modern Chrome
+### Modern Chrome Support
 
 - Works with Manifest V3
-- Preserves in-session tab history even if the extension service worker restarts
+- Preserves in-session tab history across service worker restarts
 - Falls back to normal Chrome behavior when there is no valid tab to restore
 
-### Lightweight and Private
+### Local and Minimal
 
 - No external communication
 - No analytics or tracking
 - All processing stays inside your browser session
-
-## Good Fit For
-
-- People who keep many tabs open
-- Developers moving between docs, code, and tools
-- Researchers comparing multiple pages
-- Anyone who wants tab closing to follow usage history instead of tab order
