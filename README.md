@@ -18,17 +18,6 @@ Instead of following Chrome's default tab order, it restores focus based on your
 
 Install the published extension from the Chrome Web Store listing if you want automatic updates.
 
-Store description text is available in [`STORE_DESCRIPTION.md`](./STORE_DESCRIPTION.md).
-
-### From GitHub Releases
-
-1. Download the latest `.zip` file from the [Releases page](../../releases)
-2. Extract the ZIP file to a folder
-3. Open Chrome and navigate to `chrome://extensions/`
-4. Enable "Developer mode" in the top right
-5. Click "Load unpacked" and select the extracted folder
-6. The extension will be loaded and ready to use
-
 ### From Source (Developer Mode)
 
 1. Clone this repository:
@@ -57,40 +46,7 @@ Store description text is available in [`STORE_DESCRIPTION.md`](./STORE_DESCRIPT
 - **Session Storage**: `chrome.storage.session` keeps in-memory history across service worker restarts
 - **Minimum Chrome Version**: 102
 
-## File Structure
-
-```
-last-tab-focus/
-├── manifest.json          # Extension configuration
-├── background.js          # Main functionality
-├── history.mjs            # Pure history helpers
-├── history.test.mjs       # Lightweight regression tests
-├── icons/                 # Extension icons
-├── LICENSE.md            # MIT License
-├── PRIVACY.md            # Privacy Policy
-├── README.md             # This file
-└── TESTING.md            # Manual regression checklist
-```
-
 ## Development
-
-### Prerequisites
-
-- Chrome Browser (version 102 or higher)
-- Git (for version control)
-
-### Setup for Development
-
-1. Fork this repository on GitHub
-2. Clone your fork:
-   ```bash
-   git clone https://github.com/sakataka/last-tab-focus.git
-   cd last-tab-focus
-   ```
-3. Load the extension in Chrome:
-   - Open `chrome://extensions/`
-   - Enable "Developer mode"
-   - Click "Load unpacked" and select the project directory
 
 ### Testing
 
@@ -115,27 +71,6 @@ Then follow the manual checklist in [`TESTING.md`](./TESTING.md) to verify brows
 2. Test thoroughly using the regression tests and manual checklist
 3. Ensure no console errors in service worker
 4. Test in different scenarios (single window, multiple windows, many tabs)
-
-## Implementation Details
-
-### Tab History Management
-
-- Maintains a per-window map of tab IDs with most recent first
-- Maximum history size: 50 tabs per window
-- Stores history in `chrome.storage.session`
-- Cleans invalid, closed, or moved tabs during hydration and removal handling
-
-### Event Handling
-
-- `chrome.tabs.onActivated`: Records tab activation
-- `chrome.tabs.onRemoved`: Handles tab closure and focus switching
-- `chrome.windows.onRemoved`: Cleans up history on window closure
-
-### Error Handling
-
-- Safe tab operations with proper error catching
-- Invalid tab and window ID management
-- Unhandled promise rejection handling
 
 ## License
 
