@@ -15,7 +15,8 @@ Thank you for your interest in contributing to Last Tab Focus!
 1. Create a new branch: `git checkout -b your-feature-name`
 2. Make your changes
 3. Test thoroughly:
-   - Use the test files in `dev/` directory
+   - Run `node --test history.test.mjs`
+   - Follow the manual scenarios in `TESTING.md`
    - Check service worker console for errors
    - Test with multiple tabs and windows
 4. Submit a pull request
@@ -26,6 +27,7 @@ Thank you for your interest in contributing to Last Tab Focus!
 - Handle errors gracefully with try/catch
 - Follow existing code patterns
 - Add comments for complex logic
+- Maintain compatibility with Chrome 102+
 
 ## Reporting Issues
 

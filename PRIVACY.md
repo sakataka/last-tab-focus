@@ -1,6 +1,6 @@
 # Privacy Policy for Last Tab Focus
 
-**Last Updated: June 22, 2025**
+**Last Updated: March 29, 2026**
 
 ## Overview
 
@@ -32,8 +32,8 @@ Last Tab Focus is a Chrome extension designed with a single purpose: to automati
 ## Data Storage and Retention
 
 - **Local Only**: All data is stored locally in your browser's memory
-- **Session-Based**: Tab history is cleared when browser windows are closed
-- **No Persistent Storage**: No data is saved to disk or cloud services
+- **Session-Based**: Tab history is kept only for the current browser session and is reset when the browser session ends or the extension is reloaded/updated
+- **In-Memory Storage**: Tab history is stored with Chrome's session storage and is not written to external services
 - **No External Servers**: The extension does not communicate with any external servers
 
 ## Third-Party Data Sharing
@@ -51,7 +51,6 @@ Last Tab Focus is a Chrome extension designed with a single purpose: to automati
 If you have questions about this privacy policy, please:
 
 - Create an issue on our GitHub repository: [Last Tab Focus](https://github.com/sakataka/last-tab-focus)
-- Email: [Your email address here]
 
 ## Changes to This Policy
 

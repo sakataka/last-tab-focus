@@ -1,20 +1,24 @@
 # Last Tab Focus
 
-Chrome extension that automatically switches focus to the previously focused tab when closing a tab, improving browsing efficiency.
+Last Tab Focus is a lightweight Chrome extension that switches back to the tab you were actually using before when you close the current tab.
+
+Instead of following Chrome's default tab order, it restores focus based on your recent activity in the same window.
 
 ## Features
 
-- 🔄 **Smart Tab Switching**: Automatically focuses the last active tab when closing the current tab
-- 🪟 **Multi-Window Support**: Independent tab history management for each window
-- ⚡ **Performance Optimized**: Efficient memory usage with automatic cleanup
-- 🛡️ **Error Handling**: Robust error handling for edge cases
-- 📊 **Debug Logging**: Detailed logging for troubleshooting
+- 🔄 **Smart Tab Switching**: Restores the most recently used tab instead of the next tab in order
+- 🪟 **Window-Aware History**: Only restores focus within the same window as the closed tab
+- 🔁 **MV3 Session Recovery**: Keeps in-session history across service worker restarts
+- ⚡ **Deterministic Cleanup**: Removes stale tab IDs when tabs or windows disappear
+- 🔒 **Privacy-Friendly**: No external communication or analytics
 
 ## Installation
 
 ### From Chrome Web Store (Recommended)
 
-*Coming soon - extension is currently under review*
+Install the published extension from the Chrome Web Store listing if you want automatic updates.
+
+Store description text is available in [`STORE_DESCRIPTION.md`](./STORE_DESCRIPTION.md).
 
 ### From GitHub Releases
 
@@ -29,7 +33,7 @@ Chrome extension that automatically switches focus to the previously focused tab
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/last-tab-focus.git
+   git clone https://github.com/sakataka/last-tab-focus.git
    cd last-tab-focus
    ```
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -42,14 +46,16 @@ Chrome extension that automatically switches focus to the previously focused tab
 1. Open multiple tabs in Chrome
 2. Switch between tabs to build focus history
 3. Close an active tab (Ctrl+W / ⌘+W)
-4. The extension will automatically focus the previously active tab
+4. The extension will automatically focus the previously active tab in the same window
+5. If no valid history entry exists, Chrome keeps its default tab-selection behavior
 
 ## Technical Details
 
 - **Manifest Version**: 3 (latest Chrome extension standard)
-- **Permissions**: `tabs` (required for tab management)
+- **Permissions**: `tabs`, `storage`
 - **Architecture**: Service Worker background script
-- **Minimum Chrome Version**: 88
+- **Session Storage**: `chrome.storage.session` keeps in-memory history across service worker restarts
+- **Minimum Chrome Version**: 102
 
 ## File Structure
 
@@ -57,21 +63,20 @@ Chrome extension that automatically switches focus to the previously focused tab
 last-tab-focus/
 ├── manifest.json          # Extension configuration
 ├── background.js          # Main functionality
+├── history.mjs            # Pure history helpers
+├── history.test.mjs       # Lightweight regression tests
 ├── icons/                 # Extension icons
 ├── LICENSE.md            # MIT License
 ├── PRIVACY.md            # Privacy Policy
 ├── README.md             # This file
-└── dev/                  # Development files (not included in releases)
-    ├── test-*.html       # Test files
-    ├── TESTING.md        # Testing guide
-    └── ...               # Other development tools
+└── TESTING.md            # Manual regression checklist
 ```
 
 ## Development
 
 ### Prerequisites
 
-- Chrome Browser (version 88 or higher)
+- Chrome Browser (version 102 or higher)
 - Git (for version control)
 
 ### Setup for Development
@@ -79,7 +84,7 @@ last-tab-focus/
 1. Fork this repository on GitHub
 2. Clone your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/last-tab-focus.git
+   git clone https://github.com/sakataka/last-tab-focus.git
    cd last-tab-focus
    ```
 3. Load the extension in Chrome:
@@ -89,14 +94,13 @@ last-tab-focus/
 
 ### Testing
 
-The test files are located in the `dev/` directory:
+Run the lightweight regression test suite:
 
-1. Load the extension in developer mode (see setup above)
-2. Open `dev/test-basic.html` for basic functionality testing
-3. Open `dev/test-multiwindow.html` for multi-window testing
-4. Check browser console and service worker logs for debugging
+```bash
+node --test history.test.mjs
+```
 
-See `dev/TESTING.md` for detailed testing procedures.
+Then follow the manual checklist in [`TESTING.md`](./TESTING.md) to verify browser behavior.
 
 ### Debugging
 
@@ -108,7 +112,7 @@ See `dev/TESTING.md` for detailed testing procedures.
 ### Making Changes
 
 1. Make your changes to the source code
-2. Test thoroughly using the test files
+2. Test thoroughly using the regression tests and manual checklist
 3. Ensure no console errors in service worker
 4. Test in different scenarios (single window, multiple windows, many tabs)
 
@@ -116,10 +120,10 @@ See `dev/TESTING.md` for detailed testing procedures.
 
 ### Tab History Management
 
-- Maintains an array of tab IDs with most recent first
-- Maximum history size: 50 tabs
-- Automatic cleanup of invalid/closed tabs
-- Window-specific tab selection
+- Maintains a per-window map of tab IDs with most recent first
+- Maximum history size: 50 tabs per window
+- Stores history in `chrome.storage.session`
+- Cleans invalid, closed, or moved tabs during hydration and removal handling
 
 ### Event Handling
 
@@ -130,8 +134,7 @@ See `dev/TESTING.md` for detailed testing procedures.
 ### Error Handling
 
 - Safe tab operations with proper error catching
-- Permission error handling
-- Invalid tab ID management
+- Invalid tab and window ID management
 - Unhandled promise rejection handling
 
 ## License
@@ -162,7 +165,8 @@ We welcome contributions! Please follow these steps:
    ```
 3. Make your changes following the existing code style
 4. Test thoroughly:
-   - Use the test files in `dev/`
+   - Run `node --test history.test.mjs`
+   - Follow [`TESTING.md`](./TESTING.md)
    - Test with multiple tabs and windows
    - Check service worker console for errors
 5. Commit your changes with clear messages
@@ -173,7 +177,7 @@ We welcome contributions! Please follow these steps:
 - Follow the existing code style and structure
 - Add comments for complex logic
 - Include error handling for new features
-- Maintain compatibility with Chrome 88+
+- Maintain compatibility with Chrome 102+
 - Keep the extension lightweight and fast
 
 ### Pull Request Process
