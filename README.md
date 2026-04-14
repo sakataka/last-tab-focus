@@ -1,15 +1,15 @@
 # Last Tab Focus
 
-Last Tab Focus is a Chrome extension focused on one thing: when you close the current tab, it brings focus back to the tab you were using just before it.
+Last Tab Focus is a Chrome extension focused on one thing: when you close the current tab, it brings focus back to the tab you were using just before it in the same window.
 
-It is intentionally narrow in scope. It does not try to be a full tab manager. It exists to make tab closing follow your actual usage history instead of Chrome's default tab order.
+It is intentionally narrow in scope. It does not try to be a full tab manager. It only changes close behavior, and it keeps that behavior local to your browser session.
 
 ## Features
 
 - **Last-used tab restore**: Returns to the tab you were actually using, not simply the tab to the left or right
 - **Same-window behavior**: Restores focus only within the same browser window
-- **Manifest V3 aware**: Keeps in-session history across service worker restarts
-- **Small and local**: No analytics, no remote services, no broader tab-management features
+- **Single-purpose behavior**: No tab grouping, session management, or other broader tab features
+- **Small and local**: No analytics, no remote services, and no external data transmission
 
 ## Installation
 

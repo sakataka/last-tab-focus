@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.2] - 2026-04-14
+
+### Fixed
+- Treated immediate tab clicks after an automatic restore as explicit user actions instead of ignoring them
+- Refreshed window-scoped tab metadata when tabs move between windows to keep restore fallback behavior correct
+
+### Changed
+- Packaged the extension as version `1.1.2`
+
 ## [1.1.1] - 2026-03-29
 
 ### Fixed

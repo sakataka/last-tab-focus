@@ -5,6 +5,7 @@ import {
   normalizeActivationByWindow,
   normalizeTabMetadata,
   normalizeWindowHistory,
+  moveTabInActivationByWindow,
   pruneActivationByWindow,
   pruneTabMetadata,
   pruneWindowHistory,
@@ -15,6 +16,7 @@ import {
   removeWindowHistory,
   removeWindowTabMetadata,
   resolveCloseRestorePlan,
+  resolvePendingRestoreActivation,
   setActivationRecord,
   setWindowHistory,
   upsertTabMetadata,
@@ -54,6 +56,18 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 
   void enqueueHistoryTask('tab activation', async () => {
     await handleTabActivated(activeInfo, eventTime);
+  });
+});
+
+chrome.tabs.onAttached.addListener((tabId, attachInfo) => {
+  void enqueueHistoryTask('tab attach', async () => {
+    await handleTabAttached(tabId, attachInfo);
+  });
+});
+
+chrome.tabs.onDetached.addListener((tabId, detachInfo) => {
+  void enqueueHistoryTask('tab detach', async () => {
+    await handleTabDetached(tabId, detachInfo);
   });
 });
 
@@ -128,11 +142,6 @@ async function hydrateState() {
     historyLoaded = true;
 
     await persistState();
-    logInfo('Session state hydrated:', {
-      windowHistory,
-      tabMetadata,
-      lastActivationByWindow,
-    });
   } catch (error) {
     windowHistory = {};
     tabMetadata = {};
@@ -156,11 +165,6 @@ async function resetStateFromCurrentTabs(reason) {
   historyLoadPromise = null;
 
   await persistState();
-  logInfo(`Session state reset after ${reason}:`, {
-    windowHistory,
-    tabMetadata,
-    lastActivationByWindow,
-  });
 }
 
 async function persistState() {
@@ -248,30 +252,32 @@ async function handleTabActivated(activeInfo, eventTime) {
   tabMetadata = upsertTabMetadata(tabMetadata, tab);
 
   const pendingRestore = pendingRestoreByWindow[String(activeInfo.windowId)];
-  if (pendingRestore) {
-    const isExpired = eventTime - pendingRestore.removalTime > RESTORE_WINDOW_MS;
-    if (isExpired) {
-      delete pendingRestoreByWindow[String(activeInfo.windowId)];
-    } else if (activeInfo.tabId !== pendingRestore.targetTabId) {
-      logInfo('Ignoring transient activation during close restore:', {
-        windowId: activeInfo.windowId,
-        tabId: activeInfo.tabId,
-        targetTabId: pendingRestore.targetTabId,
-      });
-      await persistState();
-      return;
-    } else {
-      delete pendingRestoreByWindow[String(activeInfo.windowId)];
-      windowHistory = setWindowHistory(
-        windowHistory,
-        activeInfo.windowId,
-        pendingRestore.historyAfterClose,
-        MAX_HISTORY_SIZE,
-      );
-    }
+  const pendingResolution = resolvePendingRestoreActivation({
+    windowHistory,
+    lastActivationByWindow,
+    windowId: activeInfo.windowId,
+    activatedTabId: activeInfo.tabId,
+    eventTime,
+    pendingRestore: pendingRestore
+      ? {
+          ...pendingRestore,
+          restoreWindowMs: RESTORE_WINDOW_MS,
+        }
+      : null,
+  });
+
+  if (pendingResolution.action === 'expired' || pendingResolution.action === 'override') {
+    delete pendingRestoreByWindow[String(activeInfo.windowId)];
+  } else if (pendingResolution.action === 'confirmed') {
+    delete pendingRestoreByWindow[String(activeInfo.windowId)];
   }
 
-  const previousHistory = getWindowHistory(windowHistory, activeInfo.windowId);
+  if (pendingResolution.action !== 'normal') {
+    windowHistory = pendingResolution.windowHistory;
+    lastActivationByWindow = pendingResolution.lastActivationByWindow;
+  }
+
+  const previousHistory = pendingResolution.previousHistory;
 
   windowHistory = addToWindowHistory(
     windowHistory,
@@ -286,7 +292,52 @@ async function handleTabActivated(activeInfo, eventTime) {
   });
 
   await persistState();
-  logInfo('Tab activated:', activeInfo.tabId, 'window history:', windowHistory);
+}
+
+async function handleTabDetached(tabId, detachInfo) {
+  await ensureHistoryLoaded();
+
+  if (!isValidTabId(tabId) || !isValidWindowId(detachInfo.oldWindowId)) {
+    return;
+  }
+
+  windowHistory = removeTabFromAllWindowHistories(windowHistory, tabId);
+  lastActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
+  delete pendingRestoreByWindow[String(detachInfo.oldWindowId)];
+
+  const existingMetadata = normalizeTabMetadata(tabMetadata)[String(tabId)];
+  if (existingMetadata) {
+    tabMetadata = {
+      ...normalizeTabMetadata(tabMetadata),
+      [String(tabId)]: {
+        ...existingMetadata,
+        windowId: detachInfo.oldWindowId,
+      },
+    };
+  }
+
+  await persistState();
+}
+
+async function handleTabAttached(tabId, attachInfo) {
+  await ensureHistoryLoaded();
+
+  const tab = await safeGetTab(tabId);
+  if (!tab) {
+    removeInvalidTabs([tabId]);
+    await persistState();
+    return;
+  }
+
+  tabMetadata = upsertTabMetadata(tabMetadata, tab);
+  lastActivationByWindow = moveTabInActivationByWindow(
+    lastActivationByWindow,
+    tabId,
+    attachInfo.newWindowId,
+  );
+  delete pendingRestoreByWindow[String(attachInfo.newWindowId)];
+
+  await persistState();
 }
 
 async function handleTabRemoved(tabId, removeInfo, eventTime) {
@@ -309,15 +360,12 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
 
   await persistState();
 
-  logInfo('Tab removed:', tabId, 'restore plan:', restorePlan);
-
   if (!restorePlan.removedWasMostRecent || removeInfo.isWindowClosing) {
     return;
   }
 
   const nextTab = await resolveRestoreTargetTab(removeInfo.windowId, restorePlan.restoreTargetTabId);
   if (!nextTab) {
-    logInfo('No valid restore target found in the same window:', removeInfo.windowId);
     return;
   }
 
@@ -347,8 +395,6 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
       });
       await persistState();
     }
-
-    logInfo('Requested restore to tab:', updatedTab.id, 'window:', updatedTab.windowId);
   } else {
     delete pendingRestoreByWindow[String(removeInfo.windowId)];
   }
@@ -363,8 +409,6 @@ async function handleWindowRemoved(windowId) {
   delete pendingRestoreByWindow[String(windowId)];
 
   await persistState();
-
-  logInfo('Window removed:', windowId, 'window history:', windowHistory);
 }
 
 async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
@@ -466,11 +510,6 @@ function isValidTabId(tabId) {
 
 function isValidWindowId(windowId) {
   return Number.isInteger(windowId) && windowId >= 0;
-}
-
-function logInfo(message, ...args) {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] [INFO] ${message}`, ...args);
 }
 
 function logError(message, error, ...args) {

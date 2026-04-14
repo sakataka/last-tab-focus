@@ -297,6 +297,24 @@ export function removeWindowActivation(lastActivationByWindow, windowId) {
   return nextActivationByWindow;
 }
 
+export function moveTabInActivationByWindow(lastActivationByWindow, tabId, windowId) {
+  let nextActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
+
+  if (!isValidWindowId(windowId) || !isValidTabId(tabId)) {
+    return nextActivationByWindow;
+  }
+
+  const destinationRecord = nextActivationByWindow[String(windowId)];
+  if (destinationRecord) {
+    nextActivationByWindow[String(windowId)] = {
+      ...destinationRecord,
+      previousHistory: destinationRecord.previousHistory.filter((currentTabId) => currentTabId !== tabId),
+    };
+  }
+
+  return nextActivationByWindow;
+}
+
 export function pruneActivationByWindow(lastActivationByWindow, openTabsById) {
   const normalizedActivationByWindow = normalizeActivationByWindow(lastActivationByWindow);
   const prunedActivationByWindow = {};
@@ -378,6 +396,60 @@ export function resolveCloseRestorePlan({
     restoreTargetTabId: isValidTabId(restoreTargetTabId) ? restoreTargetTabId : null,
     removedWasMostRecent,
     usedTransientActivation,
+  };
+}
+
+export function resolvePendingRestoreActivation({
+  windowHistory,
+  lastActivationByWindow,
+  windowId,
+  activatedTabId,
+  eventTime,
+  pendingRestore,
+}) {
+  const currentWindowHistory = getWindowHistory(windowHistory, windowId);
+  const previousHistory = currentWindowHistory;
+
+  if (!pendingRestore) {
+    return {
+      action: 'normal',
+      windowHistory,
+      lastActivationByWindow,
+      previousHistory,
+    };
+  }
+
+  const isExpired = eventTime - pendingRestore.removalTime > pendingRestore.restoreWindowMs;
+  if (isExpired) {
+    return {
+      action: 'expired',
+      windowHistory,
+      lastActivationByWindow,
+      previousHistory,
+    };
+  }
+
+  if (activatedTabId === pendingRestore.targetTabId) {
+    const nextWindowHistory = setWindowHistory(
+      windowHistory,
+      windowId,
+      pendingRestore.historyAfterClose,
+      MAX_HISTORY_SIZE,
+    );
+
+    return {
+      action: 'confirmed',
+      windowHistory: nextWindowHistory,
+      lastActivationByWindow,
+      previousHistory: getWindowHistory(nextWindowHistory, windowId),
+    };
+  }
+
+  return {
+    action: 'override',
+    windowHistory,
+    lastActivationByWindow,
+    previousHistory,
   };
 }
 

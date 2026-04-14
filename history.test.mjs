@@ -8,6 +8,7 @@ import {
   normalizeActivationByWindow,
   normalizeTabMetadata,
   normalizeWindowHistory,
+  moveTabInActivationByWindow,
   pruneActivationByWindow,
   pruneTabMetadata,
   pruneWindowHistory,
@@ -18,6 +19,7 @@ import {
   removeWindowHistory,
   removeWindowTabMetadata,
   resolveCloseRestorePlan,
+  resolvePendingRestoreActivation,
   setActivationRecord,
   setWindowHistory,
   upsertTabMetadata,
@@ -196,6 +198,44 @@ test('activation records are normalized and pruned', () => {
   });
 });
 
+test('moveTabInActivationByWindow removes moved tabs from activation snapshots', () => {
+  const activationByWindow = moveTabInActivationByWindow(
+    {
+      '1': { tabId: 5, eventTime: 1000, previousHistory: [5, 4, 3] },
+      '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 5, 7] },
+    },
+    5,
+    2,
+  );
+
+  assert.deepEqual(activationByWindow, {
+    '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 7] },
+  });
+});
+
+test('resolveCloseRestorePlan uses updated window metadata after a tab move', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '2': [30],
+    },
+    windowId: 2,
+    removedTabId: 30,
+    lastActivationByWindow: {},
+    tabMetadata: {
+      '30': { windowId: 2, openerTabId: 20 },
+      '20': { windowId: 2, openerTabId: null },
+    },
+    removalTime: 3000,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {},
+    restoreTargetTabId: 20,
+    removedWasMostRecent: true,
+    usedTransientActivation: false,
+  });
+});
+
 test('resolveCloseRestorePlan ignores close-induced transient activation', () => {
   const restorePlan = resolveCloseRestorePlan({
     windowHistory: {
@@ -270,5 +310,63 @@ test('resolveCloseRestorePlan does not restore when a background tab is closed',
     restoreTargetTabId: null,
     removedWasMostRecent: false,
     usedTransientActivation: false,
+  });
+});
+
+test('resolvePendingRestoreActivation treats unexpected activation as user override', () => {
+  const resolution = resolvePendingRestoreActivation({
+    windowHistory: {
+      '1': [20, 10],
+    },
+    lastActivationByWindow: {
+      '1': { tabId: 20, eventTime: 1000, previousHistory: [30, 20, 10] },
+    },
+    windowId: 1,
+    activatedTabId: 99,
+    eventTime: 1100,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+    },
+  });
+
+  assert.deepEqual(resolution, {
+    action: 'override',
+    windowHistory: {
+      '1': [20, 10],
+    },
+    lastActivationByWindow: {
+      '1': { tabId: 20, eventTime: 1000, previousHistory: [30, 20, 10] },
+    },
+    previousHistory: [20, 10],
+  });
+});
+
+test('resolvePendingRestoreActivation confirms expected restore target', () => {
+  const resolution = resolvePendingRestoreActivation({
+    windowHistory: {
+      '1': [99, 20, 10],
+    },
+    lastActivationByWindow: {},
+    windowId: 1,
+    activatedTabId: 20,
+    eventTime: 1100,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+    },
+  });
+
+  assert.deepEqual(resolution, {
+    action: 'confirmed',
+    windowHistory: {
+      '1': [20, 10],
+    },
+    lastActivationByWindow: {},
+    previousHistory: [20, 10],
   });
 });

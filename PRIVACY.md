@@ -4,7 +4,7 @@
 
 ## Overview
 
-Last Tab Focus is a Chrome extension designed with a single purpose: to automatically focus on the previously active tab when you close a tab. This privacy policy explains how we handle user data and privacy.
+Last Tab Focus is a single-purpose Chrome extension. It only changes tab close behavior so focus returns to the previously used tab in the same window. This privacy policy explains how that limited functionality handles data.
 
 ## Data Collection and Usage
 
@@ -18,7 +18,7 @@ Last Tab Focus is a Chrome extension designed with a single purpose: to automati
 
 ### How We Use Data
 
-- **Tab IDs**: Used solely to track which tabs were recently active
+- **Tab IDs**: Used only to track the last used tab in the current window
 - **Tab History**: Stored temporarily in memory to determine which tab to focus when another tab is closed
 - **No External Transmission**: All data processing happens locally within your browser
 
@@ -66,4 +66,4 @@ This extension complies with:
 
 ---
 
-**Note**: This extension is designed to be as privacy-friendly as possible. It operates entirely within your browser without any external data transmission or storage.
+**Note**: This extension is intentionally limited in scope. It operates entirely within your browser and does not send data to external services.
