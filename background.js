@@ -98,6 +98,9 @@ function enqueueHistoryTask(label, task) {
     }
   };
 
+  // Passing runTask as both the fulfillment and rejection handler ensures the
+  // queue keeps moving even when a previous task throws, while still handling
+  // all tasks serially (no concurrent event handlers).
   historyTaskQueue = historyTaskQueue.then(runTask, runTask);
   return historyTaskQueue;
 }
@@ -138,7 +141,12 @@ async function hydrateState() {
       normalizeActivationByWindow(normalizedState.lastActivationByWindow),
       openTabsById,
     );
-    pendingRestoreByWindow = {};
+    pendingRestoreByWindow =
+      normalizedState.pendingRestoreByWindow &&
+      typeof normalizedState.pendingRestoreByWindow === 'object' &&
+      !Array.isArray(normalizedState.pendingRestoreByWindow)
+        ? normalizedState.pendingRestoreByWindow
+        : {};
     historyLoaded = true;
 
     await persistState();
@@ -173,6 +181,7 @@ async function persistState() {
       windowHistory,
       tabMetadata,
       lastActivationByWindow,
+      pendingRestoreByWindow,
     },
   });
 }
@@ -375,6 +384,11 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
     historyAfterClose: getWindowHistory(windowHistory, removeInfo.windowId),
   };
 
+  // Persist the pending restore before any async Chrome API calls so that a
+  // service worker restart between here and the confirmation step can still
+  // recover the pending state.
+  await persistState();
+
   const updatedTab = await safeUpdateTab(nextTab.id, { active: true });
   if (updatedTab) {
     const activeTab = await safeGetActiveTabInWindow(removeInfo.windowId);
@@ -395,8 +409,13 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
       });
       await persistState();
     }
+    // If a different tab is now active, pendingRestoreByWindow stays set.
+    // handleTabActivated will consume it as 'confirmed', 'override', or 'expired'.
   } else {
     delete pendingRestoreByWindow[String(removeInfo.windowId)];
+    // Persist the deletion so that a service worker restart after a failed
+    // safeUpdateTab() does not reload a stale pending restore from storage.
+    await persistState();
   }
 }
 
@@ -423,6 +442,7 @@ async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
     invalidTabIds.push(restoreTargetTabId);
   }
 
+  let foundTab = null;
   for (const tabId of getWindowHistory(windowHistory, windowId)) {
     if (tabId === restoreTargetTabId) {
       continue;
@@ -434,12 +454,8 @@ async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
       continue;
     }
 
-    if (invalidTabIds.length > 0) {
-      removeInvalidTabs(invalidTabIds);
-      await persistState();
-    }
-
-    return tab;
+    foundTab = tab;
+    break;
   }
 
   if (invalidTabIds.length > 0) {
@@ -447,7 +463,7 @@ async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
     await persistState();
   }
 
-  return null;
+  return foundTab;
 }
 
 function removeInvalidTabs(tabIds) {

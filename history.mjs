@@ -298,21 +298,9 @@ export function removeWindowActivation(lastActivationByWindow, windowId) {
 }
 
 export function moveTabInActivationByWindow(lastActivationByWindow, tabId, windowId) {
-  let nextActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
-
-  if (!isValidWindowId(windowId) || !isValidTabId(tabId)) {
-    return nextActivationByWindow;
-  }
-
-  const destinationRecord = nextActivationByWindow[String(windowId)];
-  if (destinationRecord) {
-    nextActivationByWindow[String(windowId)] = {
-      ...destinationRecord,
-      previousHistory: destinationRecord.previousHistory.filter((currentTabId) => currentTabId !== tabId),
-    };
-  }
-
-  return nextActivationByWindow;
+  // removeTabFromActivationByWindow already removes tabId from all windows'
+  // active records and previousHistory, so no further per-window filtering is needed.
+  return removeTabFromActivationByWindow(lastActivationByWindow, tabId);
 }
 
 export function pruneActivationByWindow(lastActivationByWindow, openTabsById) {
@@ -419,7 +407,8 @@ export function resolvePendingRestoreActivation({
     };
   }
 
-  const isExpired = eventTime - pendingRestore.removalTime > pendingRestore.restoreWindowMs;
+  const timeDelta = eventTime - pendingRestore.removalTime;
+  const isExpired = !Number.isFinite(timeDelta) || timeDelta > pendingRestore.restoreWindowMs;
   if (isExpired) {
     return {
       action: 'expired',

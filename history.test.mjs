@@ -370,3 +370,28 @@ test('resolvePendingRestoreActivation confirms expected restore target', () => {
     previousHistory: [20, 10],
   });
 });
+
+test('resolvePendingRestoreActivation treats non-finite timestamps as expired', () => {
+  const base = {
+    windowHistory: { '1': [20, 10] },
+    lastActivationByWindow: {},
+    windowId: 1,
+    activatedTabId: 20,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+    },
+  };
+
+  const nanEventTime = resolvePendingRestoreActivation({ ...base, eventTime: NaN });
+  assert.equal(nanEventTime.action, 'expired');
+
+  const nanRemovalTime = resolvePendingRestoreActivation({
+    ...base,
+    eventTime: 1100,
+    pendingRestore: { ...base.pendingRestore, removalTime: NaN },
+  });
+  assert.equal(nanRemovalTime.action, 'expired');
+});
