@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.3] - 2026-04-19
+
+### Fixed
+- Retry session-state hydration up to 3 times before falling back to an empty in-memory state
+- Document why detached tabs keep their original `windowId` metadata until `onAttached` finishes
+
+### Changed
+- Explicitly declare `content_security_policy.extension_pages` in the MV3 manifest
+- Packaged the extension as version `1.1.3`
+
 ## [1.1.2] - 2026-04-14
 
 ### Fixed
