@@ -24,6 +24,7 @@ import {
 
 const STATE_STORAGE_KEY = 'sessionState';
 const RESTORE_WINDOW_MS = 1500;
+const MAX_HYDRATE_ATTEMPTS = 3;
 
 let windowHistory = {};
 let tabMetadata = {};
@@ -32,6 +33,7 @@ let historyLoaded = false;
 let historyLoadPromise = null;
 let historyTaskQueue = Promise.resolve();
 let pendingRestoreByWindow = {};
+let hydrateAttempts = 0;
 
 chrome.runtime.onStartup.addListener(() => {
   void enqueueHistoryTask('startup reset', async () => {
@@ -148,15 +150,23 @@ async function hydrateState() {
         ? normalizedState.pendingRestoreByWindow
         : {};
     historyLoaded = true;
+    hydrateAttempts = 0;
 
     await persistState();
   } catch (error) {
-    windowHistory = {};
-    tabMetadata = {};
-    lastActivationByWindow = {};
-    pendingRestoreByWindow = {};
-    historyLoaded = true;
-    logError('Failed to hydrate session state:', error);
+    hydrateAttempts += 1;
+    logError('Failed to hydrate session state:', error, 'attempt:', hydrateAttempts);
+
+    // Leave historyLoaded = false so the next ensureHistoryLoaded() call retries,
+    // up to MAX_HYDRATE_ATTEMPTS. After the cap, fall back to an empty state so
+    // event handlers can still make forward progress instead of blocking forever.
+    if (hydrateAttempts >= MAX_HYDRATE_ATTEMPTS) {
+      windowHistory = {};
+      tabMetadata = {};
+      lastActivationByWindow = {};
+      pendingRestoreByWindow = {};
+      historyLoaded = true;
+    }
   } finally {
     historyLoadPromise = null;
   }
@@ -171,6 +181,7 @@ async function resetStateFromCurrentTabs(reason) {
   pendingRestoreByWindow = {};
   historyLoaded = true;
   historyLoadPromise = null;
+  hydrateAttempts = 0;
 
   await persistState();
 }
@@ -314,6 +325,9 @@ async function handleTabDetached(tabId, detachInfo) {
   lastActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
   delete pendingRestoreByWindow[String(detachInfo.oldWindowId)];
 
+  // Keep tabMetadata's windowId pinned to oldWindowId until onAttached fires.
+  // If handleTabRemoved races in between detach and attach, opener-based
+  // restore fallback needs to resolve against the window the tab actually left.
   const existingMetadata = normalizeTabMetadata(tabMetadata)[String(tabId)];
   if (existingMetadata) {
     tabMetadata = {
