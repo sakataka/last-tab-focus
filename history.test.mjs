@@ -231,6 +231,7 @@ test('resolveCloseRestorePlan uses updated window metadata after a tab move', ()
   assert.deepEqual(restorePlan, {
     windowHistory: {},
     restoreTargetTabId: 20,
+    openerFallbackTabId: 20,
     removedWasMostRecent: true,
     usedTransientActivation: false,
   });
@@ -262,6 +263,7 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
       '1': [20, 10],
     },
     restoreTargetTabId: 20,
+    openerFallbackTabId: 20,
     removedWasMostRecent: true,
     usedTransientActivation: true,
   });
@@ -284,6 +286,32 @@ test('resolveCloseRestorePlan falls back to opener when history is empty after c
   assert.deepEqual(restorePlan, {
     windowHistory: {},
     restoreTargetTabId: 20,
+    openerFallbackTabId: 20,
+    removedWasMostRecent: true,
+    usedTransientActivation: false,
+  });
+});
+
+test('resolveCloseRestorePlan preserves opener fallback when history target may be stale', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '1': [30, 99],
+    },
+    windowId: 1,
+    removedTabId: 30,
+    lastActivationByWindow: {},
+    tabMetadata: {
+      '30': { windowId: 1, openerTabId: 20 },
+    },
+    removalTime: 3000,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {
+      '1': [99],
+    },
+    restoreTargetTabId: 99,
+    openerFallbackTabId: 20,
     removedWasMostRecent: true,
     usedTransientActivation: false,
   });
@@ -308,6 +336,7 @@ test('resolveCloseRestorePlan does not restore when a background tab is closed',
       '1': [30, 20],
     },
     restoreTargetTabId: null,
+    openerFallbackTabId: null,
     removedWasMostRecent: false,
     usedTransientActivation: false,
   });

@@ -367,21 +367,25 @@ export function resolveCloseRestorePlan({
   nextWindowHistory = removeTabFromAllWindowHistories(nextWindowHistory, removedTabId);
 
   let restoreTargetTabId = null;
+  let openerFallbackTabId = null;
   if (removedWasMostRecent) {
+    const openerTabId = normalizedTabMetadata[String(removedTabId)]?.openerTabId ?? null;
+    const openerWindowId = normalizedTabMetadata[String(removedTabId)]?.windowId ?? null;
+    if (isValidTabId(openerTabId) && openerWindowId === windowId) {
+      openerFallbackTabId = openerTabId;
+    }
+
     restoreTargetTabId = getWindowHistory(nextWindowHistory, windowId)[0] ?? null;
 
     if (!isValidTabId(restoreTargetTabId)) {
-      const openerTabId = normalizedTabMetadata[String(removedTabId)]?.openerTabId ?? null;
-      const openerWindowId = normalizedTabMetadata[String(removedTabId)]?.windowId ?? null;
-      if (isValidTabId(openerTabId) && openerWindowId === windowId) {
-        restoreTargetTabId = openerTabId;
-      }
+      restoreTargetTabId = openerFallbackTabId;
     }
   }
 
   return {
     windowHistory: nextWindowHistory,
     restoreTargetTabId: isValidTabId(restoreTargetTabId) ? restoreTargetTabId : null,
+    openerFallbackTabId,
     removedWasMostRecent,
     usedTransientActivation,
   };

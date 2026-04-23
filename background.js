@@ -387,7 +387,11 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
     return;
   }
 
-  const nextTab = await resolveRestoreTargetTab(removeInfo.windowId, restorePlan.restoreTargetTabId);
+  const nextTab = await resolveRestoreTargetTab(
+    removeInfo.windowId,
+    restorePlan.restoreTargetTabId,
+    restorePlan.openerFallbackTabId,
+  );
   if (!nextTab) {
     return;
   }
@@ -444,7 +448,7 @@ async function handleWindowRemoved(windowId) {
   await persistState();
 }
 
-async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
+async function resolveRestoreTargetTab(windowId, restoreTargetTabId, openerFallbackTabId) {
   const invalidTabIds = [];
 
   if (isValidTabId(restoreTargetTabId)) {
@@ -470,6 +474,15 @@ async function resolveRestoreTargetTab(windowId, restoreTargetTabId) {
 
     foundTab = tab;
     break;
+  }
+
+  if (!foundTab && isValidTabId(openerFallbackTabId)) {
+    const openerTab = await safeGetTab(openerFallbackTabId);
+    if (openerTab && openerTab.windowId === windowId) {
+      foundTab = openerTab;
+    } else if (openerFallbackTabId !== restoreTargetTabId) {
+      invalidTabIds.push(openerFallbackTabId);
+    }
   }
 
   if (invalidTabIds.length > 0) {

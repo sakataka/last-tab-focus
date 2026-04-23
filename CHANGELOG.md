@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4] - 2026-04-24
+
+### Fixed
+- Fall back to a valid opener tab when stored focus history points at a stale tab
+
+### Changed
+- Packaged the extension as version `1.1.4`
+
 ## [1.1.3] - 2026-04-19
 
 ### Fixed
