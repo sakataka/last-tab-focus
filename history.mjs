@@ -1,5 +1,45 @@
 export const MAX_HISTORY_SIZE = 50;
 
+function normalizeTabIdList(rawTabIds, maxHistorySize = MAX_HISTORY_SIZE) {
+  const tabIds = [];
+  const seenTabIds = new Set();
+
+  for (const rawTabId of Array.isArray(rawTabIds) ? rawTabIds : []) {
+    const tabId = parseTabId(rawTabId);
+    if (!isValidTabId(tabId) || seenTabIds.has(tabId)) {
+      continue;
+    }
+
+    seenTabIds.add(tabId);
+    tabIds.push(tabId);
+
+    if (tabIds.length >= maxHistorySize) {
+      break;
+    }
+  }
+
+  return tabIds;
+}
+
+export function replaceTabInTabIdList(
+  rawTabIds,
+  removedTabId,
+  addedTabId,
+  maxHistorySize = MAX_HISTORY_SIZE,
+) {
+  if (!isValidTabId(removedTabId) || !isValidTabId(addedTabId)) {
+    return normalizeTabIdList(rawTabIds, maxHistorySize);
+  }
+
+  const normalizedTabIds = normalizeTabIdList(rawTabIds, maxHistorySize);
+  return normalizeTabIdList(
+    normalizedTabIds.map((tabId) => {
+      return tabId === removedTabId ? addedTabId : tabId;
+    }),
+    maxHistorySize,
+  );
+}
+
 export function normalizeWindowHistory(rawWindowHistory, maxHistorySize = MAX_HISTORY_SIZE) {
   if (!rawWindowHistory || typeof rawWindowHistory !== 'object' || Array.isArray(rawWindowHistory)) {
     return {};
@@ -13,23 +53,7 @@ export function normalizeWindowHistory(rawWindowHistory, maxHistorySize = MAX_HI
       continue;
     }
 
-    const tabIds = [];
-    const seenTabIds = new Set();
-
-    for (const rawTabId of rawTabIds) {
-      const tabId = Number(rawTabId);
-      if (!isValidTabId(tabId) || seenTabIds.has(tabId)) {
-        continue;
-      }
-
-      seenTabIds.add(tabId);
-      tabIds.push(tabId);
-
-      if (tabIds.length >= maxHistorySize) {
-        break;
-      }
-    }
-
+    const tabIds = normalizeTabIdList(rawTabIds, maxHistorySize);
     if (tabIds.length > 0) {
       normalizedHistory[String(windowId)] = tabIds;
     }
@@ -40,22 +64,7 @@ export function normalizeWindowHistory(rawWindowHistory, maxHistorySize = MAX_HI
 
 export function setWindowHistory(windowHistory, windowId, tabIds, maxHistorySize = MAX_HISTORY_SIZE) {
   const nextHistory = normalizeWindowHistory(windowHistory, maxHistorySize);
-  const sanitizedTabIds = [];
-  const seenTabIds = new Set();
-
-  for (const rawTabId of Array.isArray(tabIds) ? tabIds : []) {
-    const tabId = Number(rawTabId);
-    if (!isValidTabId(tabId) || seenTabIds.has(tabId)) {
-      continue;
-    }
-
-    seenTabIds.add(tabId);
-    sanitizedTabIds.push(tabId);
-
-    if (sanitizedTabIds.length >= maxHistorySize) {
-      break;
-    }
-  }
+  const sanitizedTabIds = normalizeTabIdList(tabIds, maxHistorySize);
 
   if (!isValidWindowId(windowId) || sanitizedTabIds.length === 0) {
     delete nextHistory[String(windowId)];
@@ -71,17 +80,35 @@ export function addToWindowHistory(windowHistory, windowId, tabId, maxHistorySiz
     return normalizeWindowHistory(windowHistory, maxHistorySize);
   }
 
-  const currentWindowHistory = getWindowHistory(windowHistory, windowId).filter((currentTabId) => {
+  const nextHistory = normalizeWindowHistory(windowHistory, maxHistorySize);
+  const windowKey = String(windowId);
+  const currentWindowHistory = (nextHistory[windowKey] || []).filter((currentTabId) => {
     return currentTabId !== tabId;
   });
 
   currentWindowHistory.unshift(tabId);
-  return setWindowHistory(windowHistory, windowId, currentWindowHistory, maxHistorySize);
+  nextHistory[windowKey] = normalizeTabIdList(currentWindowHistory, maxHistorySize);
+  return nextHistory;
 }
 
 export function getWindowHistory(windowHistory, windowId) {
-  const normalizedHistory = normalizeWindowHistory(windowHistory, MAX_HISTORY_SIZE);
-  return normalizedHistory[String(windowId)] || [];
+  if (!windowHistory || typeof windowHistory !== 'object' || Array.isArray(windowHistory)) {
+    return [];
+  }
+
+  const targetWindowId = Number(windowId);
+  if (!isValidWindowId(targetWindowId)) {
+    return [];
+  }
+
+  let tabIds = [];
+  for (const [windowKey, rawTabIds] of Object.entries(windowHistory)) {
+    if (Number(windowKey) === targetWindowId && Array.isArray(rawTabIds)) {
+      tabIds = normalizeTabIdList(rawTabIds, MAX_HISTORY_SIZE);
+    }
+  }
+
+  return tabIds;
 }
 
 export function removeTabFromAllWindowHistories(windowHistory, tabId) {
@@ -94,6 +121,25 @@ export function removeTabFromAllWindowHistories(windowHistory, tabId) {
 
   for (const [windowKey, tabIds] of Object.entries(nextHistory)) {
     const nextTabIds = tabIds.filter((currentTabId) => currentTabId !== tabId);
+    if (nextTabIds.length > 0) {
+      updatedHistory[windowKey] = nextTabIds;
+    }
+  }
+
+  return updatedHistory;
+}
+
+export function replaceTabInAllWindowHistories(windowHistory, removedTabId, addedTabId) {
+  if (!isValidTabId(removedTabId) || !isValidTabId(addedTabId)) {
+    return normalizeWindowHistory(windowHistory, MAX_HISTORY_SIZE);
+  }
+
+  const normalizedHistory = normalizeWindowHistory(windowHistory, MAX_HISTORY_SIZE);
+  const updatedHistory = {};
+
+  for (const [windowKey, tabIds] of Object.entries(normalizedHistory)) {
+    const nextTabIds = replaceTabInTabIdList(tabIds, removedTabId, addedTabId, MAX_HISTORY_SIZE);
+
     if (nextTabIds.length > 0) {
       updatedHistory[windowKey] = nextTabIds;
     }
@@ -151,7 +197,7 @@ export function normalizeTabMetadata(rawTabMetadata) {
     const windowId = Number(rawMetadata.windowId);
     const openerTabId = rawMetadata.openerTabId === null || rawMetadata.openerTabId === undefined
       ? null
-      : Number(rawMetadata.openerTabId);
+      : parseTabId(rawMetadata.openerTabId);
 
     if (!isValidWindowId(windowId)) {
       continue;
@@ -183,6 +229,29 @@ export function upsertTabMetadata(tabMetadata, tab) {
 export function removeTabMetadata(tabMetadata, tabId) {
   const nextTabMetadata = normalizeTabMetadata(tabMetadata);
   delete nextTabMetadata[String(tabId)];
+  return nextTabMetadata;
+}
+
+export function replaceTabMetadata(tabMetadata, removedTabId, addedTabId, addedTab = null) {
+  const nextTabMetadata = normalizeTabMetadata(tabMetadata);
+  if (!isValidTabId(removedTabId) || !isValidTabId(addedTabId)) {
+    return nextTabMetadata;
+  }
+
+  const previousMetadata = nextTabMetadata[String(removedTabId)];
+  delete nextTabMetadata[String(removedTabId)];
+
+  if (addedTab && isValidTabId(addedTab.id) && isValidWindowId(addedTab.windowId)) {
+    nextTabMetadata[String(addedTab.id)] = {
+      windowId: addedTab.windowId,
+      openerTabId: isValidTabId(addedTab.openerTabId)
+        ? addedTab.openerTabId
+        : previousMetadata?.openerTabId ?? null,
+    };
+  } else if (previousMetadata) {
+    nextTabMetadata[String(addedTabId)] = previousMetadata;
+  }
+
   return nextTabMetadata;
 }
 
@@ -251,7 +320,7 @@ export function normalizeActivationByWindow(rawActivationByWindow) {
     normalizedActivationByWindow[String(windowId)] = {
       tabId,
       eventTime: Number.isFinite(eventTime) ? eventTime : 0,
-      previousHistory: getWindowHistory({ [windowKey]: previousHistory }, windowId),
+      previousHistory: normalizeTabIdList(previousHistory, MAX_HISTORY_SIZE),
     };
   }
 
@@ -268,7 +337,7 @@ export function setActivationRecord(lastActivationByWindow, windowId, record) {
   nextActivationByWindow[String(windowId)] = {
     tabId: record.tabId,
     eventTime: Number.isFinite(record.eventTime) ? record.eventTime : 0,
-    previousHistory: getWindowHistory({ [String(windowId)]: record.previousHistory }, windowId),
+    previousHistory: normalizeTabIdList(record.previousHistory, MAX_HISTORY_SIZE),
   };
 
   return nextActivationByWindow;
@@ -286,6 +355,29 @@ export function removeTabFromActivationByWindow(lastActivationByWindow, tabId) {
         previousHistory: record.previousHistory.filter((currentTabId) => currentTabId !== tabId),
       };
     }
+  }
+
+  return nextActivationByWindow;
+}
+
+export function replaceTabInActivationByWindow(lastActivationByWindow, removedTabId, addedTabId) {
+  if (!isValidTabId(removedTabId) || !isValidTabId(addedTabId)) {
+    return normalizeActivationByWindow(lastActivationByWindow);
+  }
+
+  const nextActivationByWindow = normalizeActivationByWindow(lastActivationByWindow);
+
+  for (const [windowKey, record] of Object.entries(nextActivationByWindow)) {
+    nextActivationByWindow[windowKey] = {
+      ...record,
+      tabId: record.tabId === removedTabId ? addedTabId : record.tabId,
+      previousHistory: replaceTabInTabIdList(
+        record.previousHistory,
+        removedTabId,
+        addedTabId,
+        MAX_HISTORY_SIZE,
+      ),
+    };
   }
 
   return nextActivationByWindow;
@@ -448,6 +540,18 @@ export function resolvePendingRestoreActivation({
 
 function isValidTabId(tabId) {
   return Number.isInteger(tabId) && tabId >= 0;
+}
+
+function parseTabId(rawTabId) {
+  if (typeof rawTabId === 'number') {
+    return rawTabId;
+  }
+
+  if (typeof rawTabId === 'string' && /^\d+$/.test(rawTabId)) {
+    return Number(rawTabId);
+  }
+
+  return null;
 }
 
 function isValidWindowId(windowId) {

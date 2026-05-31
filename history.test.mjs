@@ -12,6 +12,10 @@ import {
   pruneActivationByWindow,
   pruneTabMetadata,
   pruneWindowHistory,
+  replaceTabInActivationByWindow,
+  replaceTabInAllWindowHistories,
+  replaceTabInTabIdList,
+  replaceTabMetadata,
   removeTabFromActivationByWindow,
   removeTabFromAllWindowHistories,
   removeTabMetadata,
@@ -27,7 +31,7 @@ import {
 
 test('normalizeWindowHistory removes invalid values and duplicate tab ids', () => {
   const history = normalizeWindowHistory({
-    '1': [5, '5', 2, -1, 2, 9],
+    '1': [5, '5', 2, -1, 2, 9, null, false],
     '-1': [8],
     abc: [1],
     '2': 'not-an-array',
@@ -36,6 +40,19 @@ test('normalizeWindowHistory removes invalid values and duplicate tab ids', () =
   assert.deepEqual(history, {
     '1': [5, 2, 9],
   });
+});
+
+test('getWindowHistory normalizes only the requested window entry', () => {
+  const history = getWindowHistory(
+    {
+      '01': [5, '5', 2],
+      '2': [9],
+      '3': 'not-an-array',
+    },
+    1,
+  );
+
+  assert.deepEqual(history, [5, 2]);
 });
 
 test('setWindowHistory replaces one window entry and removes it when empty', () => {
@@ -88,6 +105,22 @@ test('removeTabFromAllWindowHistories removes a tab across windows', () => {
   });
 });
 
+test('replaceTabInAllWindowHistories preserves order and deduplicates replacement ids', () => {
+  const history = replaceTabInAllWindowHistories(
+    {
+      '1': [7, 5, 3],
+      '2': [8, 7, 8, 1],
+    },
+    7,
+    8,
+  );
+
+  assert.deepEqual(history, {
+    '1': [8, 5, 3],
+    '2': [8, 1],
+  });
+});
+
 test('removeWindowHistory drops only the requested window entry', () => {
   const history = removeWindowHistory(
     {
@@ -125,16 +158,19 @@ test('pruneWindowHistory removes tabs that are closed or moved to another window
 test('tab metadata is normalized, updated, and pruned', () => {
   let metadata = normalizeTabMetadata({
     '1': { windowId: 2, openerTabId: 8 },
+    '2': { windowId: 2, openerTabId: false },
     'bad': { windowId: 3, openerTabId: 2 },
     '4': { windowId: -1, openerTabId: 1 },
   });
 
   assert.deepEqual(metadata, {
     '1': { windowId: 2, openerTabId: 8 },
+    '2': { windowId: 2, openerTabId: null },
   });
 
   metadata = upsertTabMetadata(metadata, { id: 5, windowId: 2, openerTabId: 1 });
   metadata = removeTabMetadata(metadata, 1);
+  metadata = removeTabMetadata(metadata, 2);
 
   assert.deepEqual(metadata, {
     '5': { windowId: 2, openerTabId: 1 },
@@ -151,6 +187,38 @@ test('tab metadata is normalized, updated, and pruned', () => {
   metadata = removeWindowTabMetadata(metadata, 2);
 
   assert.deepEqual(metadata, {});
+});
+
+test('replaceTabMetadata carries replacement tab metadata when available', () => {
+  const metadata = replaceTabMetadata(
+    {
+      '7': { windowId: 1, openerTabId: 3 },
+      '9': { windowId: 1, openerTabId: null },
+    },
+    7,
+    8,
+    { id: 8, windowId: 2, openerTabId: 4 },
+  );
+
+  assert.deepEqual(metadata, {
+    '8': { windowId: 2, openerTabId: 4 },
+    '9': { windowId: 1, openerTabId: null },
+  });
+});
+
+test('replaceTabMetadata preserves opener fallback when replacement tab omits it', () => {
+  const metadata = replaceTabMetadata(
+    {
+      '7': { windowId: 1, openerTabId: 3 },
+    },
+    7,
+    8,
+    { id: 8, windowId: 2 },
+  );
+
+  assert.deepEqual(metadata, {
+    '8': { windowId: 2, openerTabId: 3 },
+  });
 });
 
 test('activation records are normalized and pruned', () => {
@@ -196,6 +264,30 @@ test('activation records are normalized and pruned', () => {
   assert.deepEqual(activationByWindow, {
     '2': { tabId: 8, eventTime: 1200, previousHistory: [8, 7] },
   });
+});
+
+test('replaceTabInActivationByWindow updates active records and previous histories', () => {
+  const activationByWindow = replaceTabInActivationByWindow(
+    {
+      '1': { tabId: 7, eventTime: 1000, previousHistory: [7, 5, 8] },
+      '2': { tabId: 9, eventTime: 1200, previousHistory: [7, 8, 4] },
+    },
+    7,
+    8,
+  );
+
+  assert.deepEqual(activationByWindow, {
+    '1': { tabId: 8, eventTime: 1000, previousHistory: [8, 5] },
+    '2': { tabId: 9, eventTime: 1200, previousHistory: [8, 4] },
+  });
+});
+
+test('replaceTabInTabIdList handles stale pending restore histories', () => {
+  const tabIds = replaceTabInTabIdList([7, '7', 5, 8, null], 7, 8);
+
+  assert.deepEqual(tabIds, [8, 5]);
+
+  assert.deepEqual(replaceTabInTabIdList([null, 5], 0, 8), [5]);
 });
 
 test('moveTabInActivationByWindow removes moved tabs from activation snapshots', () => {

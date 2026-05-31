@@ -9,6 +9,10 @@ import {
   pruneActivationByWindow,
   pruneTabMetadata,
   pruneWindowHistory,
+  replaceTabInActivationByWindow,
+  replaceTabInAllWindowHistories,
+  replaceTabInTabIdList,
+  replaceTabMetadata,
   removeTabFromActivationByWindow,
   removeTabFromAllWindowHistories,
   removeTabMetadata,
@@ -78,6 +82,12 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 
   void enqueueHistoryTask('tab removal', async () => {
     await handleTabRemoved(tabId, removeInfo, eventTime);
+  });
+});
+
+chrome.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
+  void enqueueHistoryTask('tab replacement', async () => {
+    await handleTabReplaced(addedTabId, removedTabId);
   });
 });
 
@@ -240,11 +250,15 @@ function buildActivationStateFromTabs(tabs, currentWindowHistory) {
 }
 
 function buildOpenTabsById(tabs) {
-  return Object.fromEntries(
-    tabs
-      .filter((tab) => isValidTabId(tab.id) && isValidWindowId(tab.windowId))
-      .map((tab) => [tab.id, tab]),
-  );
+  const openTabsById = {};
+
+  for (const tab of tabs) {
+    if (isValidTabId(tab.id) && isValidWindowId(tab.windowId)) {
+      openTabsById[tab.id] = tab;
+    }
+  }
+
+  return openTabsById;
 }
 
 async function handleTabCreated(tab) {
@@ -328,10 +342,11 @@ async function handleTabDetached(tabId, detachInfo) {
   // Keep tabMetadata's windowId pinned to oldWindowId until onAttached fires.
   // If handleTabRemoved races in between detach and attach, opener-based
   // restore fallback needs to resolve against the window the tab actually left.
-  const existingMetadata = normalizeTabMetadata(tabMetadata)[String(tabId)];
+  const normalizedTabMetadata = normalizeTabMetadata(tabMetadata);
+  const existingMetadata = normalizedTabMetadata[String(tabId)];
   if (existingMetadata) {
     tabMetadata = {
-      ...normalizeTabMetadata(tabMetadata),
+      ...normalizedTabMetadata,
       [String(tabId)]: {
         ...existingMetadata,
         windowId: detachInfo.oldWindowId,
@@ -437,6 +452,32 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
   }
 }
 
+async function handleTabReplaced(addedTabId, removedTabId) {
+  await ensureHistoryLoaded();
+
+  if (!isValidTabId(removedTabId) || !isValidTabId(addedTabId)) {
+    return;
+  }
+
+  const addedTab = await safeGetTab(addedTabId);
+  if (!addedTab) {
+    removeInvalidTabs([removedTabId]);
+    await persistState();
+    return;
+  }
+
+  windowHistory = replaceTabInAllWindowHistories(windowHistory, removedTabId, addedTabId);
+  tabMetadata = replaceTabMetadata(tabMetadata, removedTabId, addedTabId, addedTab);
+  lastActivationByWindow = replaceTabInActivationByWindow(
+    lastActivationByWindow,
+    removedTabId,
+    addedTabId,
+  );
+  replacePendingRestoreTabId(removedTabId, addedTabId);
+
+  await persistState();
+}
+
 async function handleWindowRemoved(windowId) {
   await ensureHistoryLoaded();
 
@@ -498,6 +539,28 @@ function removeInvalidTabs(tabIds) {
     windowHistory = removeTabFromAllWindowHistories(windowHistory, tabId);
     tabMetadata = removeTabMetadata(tabMetadata, tabId);
     lastActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
+  }
+}
+
+function replacePendingRestoreTabId(removedTabId, addedTabId) {
+  for (const [windowKey, pendingRestore] of Object.entries(pendingRestoreByWindow)) {
+    if (!pendingRestore || typeof pendingRestore !== 'object' || Array.isArray(pendingRestore)) {
+      delete pendingRestoreByWindow[windowKey];
+      continue;
+    }
+
+    pendingRestoreByWindow[windowKey] = {
+      ...pendingRestore,
+      targetTabId: pendingRestore.targetTabId === removedTabId
+        ? addedTabId
+        : pendingRestore.targetTabId,
+      historyAfterClose: replaceTabInTabIdList(
+        pendingRestore.historyAfterClose,
+        removedTabId,
+        addedTabId,
+        MAX_HISTORY_SIZE,
+      ),
+    };
   }
 }
 

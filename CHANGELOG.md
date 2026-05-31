@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.5] - 2026-05-31
+
+### Fixed
+- Preserve tab focus history when Chrome replaces a tab ID during prerendering or instant navigation
+
+### Changed
+- Reduced repeated history normalization work during tab history updates
+- Packaged the extension as version `1.1.5`
+
 ## [1.1.4] - 2026-04-24
 
 ### Fixed
