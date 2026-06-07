@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.6] - 2026-06-07
+
+### Added
+- Added Chrome extension localization metadata for English, Japanese, Simplified Chinese, and Traditional Chinese
+- Added localized Chrome Web Store description drafts for the same locales
+
+### Changed
+- Packaged the extension as version `1.1.6`
+
 ## [1.1.5] - 2026-05-31
 
 ### Fixed

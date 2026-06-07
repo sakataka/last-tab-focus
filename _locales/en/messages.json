@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "Last Tab Focus",
+    "description": "Extension name shown in Chrome and the Chrome Web Store."
+  },
+  "extensionDescription": {
+    "message": "A single-purpose extension that returns to the previous tab when you close the current tab",
+    "description": "Short extension description shown in Chrome and the Chrome Web Store."
+  }
+}

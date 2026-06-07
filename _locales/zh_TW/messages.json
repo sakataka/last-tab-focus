@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "Last Tab Focus - 回到上一個分頁",
+    "description": "顯示在 Chrome 和 Chrome 線上應用程式商店中的擴充功能名稱。"
+  },
+  "extensionDescription": {
+    "message": "一個只做一件事的擴充功能：關閉目前分頁後回到上一個分頁",
+    "description": "顯示在 Chrome 和 Chrome 線上應用程式商店中的簡短說明。"
+  }
+}
