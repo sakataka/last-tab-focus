@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.7] - 2026-06-07
+
+### Changed
+- Replaced the extension icons with a generated tab-focus icon
+- Packaged the extension as version `1.1.7`
+
+### Removed
+- Removed the unused source SVG icon
+
 ## [1.1.6] - 2026-06-07
 
 ### Added
