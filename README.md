@@ -15,7 +15,9 @@ It is intentionally narrow in scope. It does not try to be a full tab manager. I
 
 ### From Chrome Web Store (Recommended)
 
-Install the published extension from the Chrome Web Store listing if you want automatic updates.
+Install the published extension from the Chrome Web Store listing if you want automatic updates:
+
+https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag
 
 ### From Source (Developer Mode)
 
