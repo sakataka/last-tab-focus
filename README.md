@@ -42,7 +42,7 @@ https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoi
 ## Technical Details
 
 - **Manifest Version**: 3 (latest Chrome extension standard)
-- **Permissions**: `tabs`, `storage`
+- **Permissions**: `storage` only; the tab events used by the extension do not require the broader `tabs` permission
 - **Architecture**: Service Worker background script
 - **Session Storage**: `chrome.storage.session` keeps in-memory history across service worker restarts
 - **Minimum Chrome Version**: 102

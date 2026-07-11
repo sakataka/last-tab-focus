@@ -425,7 +425,7 @@ export function resolveCloseRestorePlan({
   lastActivationByWindow,
   tabMetadata,
   removalTime,
-  transientActivationWindowMs = 1500,
+  transientActivationWindowMs = 25,
 }) {
   const normalizedWindowHistory = normalizeWindowHistory(windowHistory, MAX_HISTORY_SIZE);
   const normalizedActivationByWindow = normalizeActivationByWindow(lastActivationByWindow);

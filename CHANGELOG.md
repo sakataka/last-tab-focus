@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.8] - 2026-07-11
+
+### Fixed
+- Keep the current tab focused when a recently used background tab is closed
+
+### Changed
+- Removed the unnecessary `tabs` permission; only in-memory session storage permission remains
+- Packaged the extension as version `1.1.8`
+
 ## [1.1.7] - 2026-06-07
 
 ### Changed

@@ -27,7 +27,8 @@ import {
 } from './history.mjs';
 
 const STATE_STORAGE_KEY = 'sessionState';
-const RESTORE_WINDOW_MS = 1500;
+const CLOSE_EVENT_REORDER_WINDOW_MS = 25;
+const RESTORE_CONFIRMATION_WINDOW_MS = 1500;
 const MAX_HYDRATE_ATTEMPTS = 3;
 
 let windowHistory = {};
@@ -295,7 +296,7 @@ async function handleTabActivated(activeInfo, eventTime) {
     pendingRestore: pendingRestore
       ? {
           ...pendingRestore,
-          restoreWindowMs: RESTORE_WINDOW_MS,
+          restoreWindowMs: RESTORE_CONFIRMATION_WINDOW_MS,
         }
       : null,
   });
@@ -388,7 +389,7 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
     lastActivationByWindow,
     tabMetadata,
     removalTime: eventTime,
-    transientActivationWindowMs: RESTORE_WINDOW_MS,
+    transientActivationWindowMs: CLOSE_EVENT_REORDER_WINDOW_MS,
   });
 
   windowHistory = restorePlan.windowHistory;

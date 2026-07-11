@@ -339,7 +339,7 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
     lastActivationByWindow: {
       '1': {
         tabId: 40,
-        eventTime: 2000,
+        eventTime: 2175,
         previousHistory: [30, 20, 10],
       },
     },
@@ -347,7 +347,7 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
       '30': { windowId: 1, openerTabId: 20 },
     },
     removalTime: 2200,
-    transientActivationWindowMs: 1000,
+    transientActivationWindowMs: 25,
   });
 
   assert.deepEqual(restorePlan, {
@@ -358,6 +358,38 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
     openerFallbackTabId: 20,
     removedWasMostRecent: true,
     usedTransientActivation: true,
+  });
+});
+
+test('resolveCloseRestorePlan preserves a recent user-selected tab when a background tab closes', () => {
+  const restorePlan = resolveCloseRestorePlan({
+    windowHistory: {
+      '1': [40, 30, 20, 10],
+    },
+    windowId: 1,
+    removedTabId: 30,
+    lastActivationByWindow: {
+      '1': {
+        tabId: 40,
+        eventTime: 2000,
+        previousHistory: [30, 20, 10],
+      },
+    },
+    tabMetadata: {
+      '30': { windowId: 1, openerTabId: 20 },
+    },
+    removalTime: 2050,
+    transientActivationWindowMs: 25,
+  });
+
+  assert.deepEqual(restorePlan, {
+    windowHistory: {
+      '1': [40, 20, 10],
+    },
+    restoreTargetTabId: null,
+    openerFallbackTabId: null,
+    removedWasMostRecent: false,
+    usedTransientActivation: false,
   });
 });
 
