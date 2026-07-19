@@ -1,6 +1,6 @@
 # Chrome Web Store Descriptions
 
-The six sections below are the source of truth for the localized long descriptions in the Chrome Web Store. Korean (`ko`) is a future candidate, not part of version 1.1.9.
+The six sections below are the source of truth for the localized long descriptions in the Chrome Web Store. Korean (`ko`) is a future candidate, not part of version 1.1.10.
 
 ## en
 

@@ -1,6 +1,6 @@
 # Search visibility baseline
 
-Recorded on 2026-07-19, before publishing version 1.1.9 and the official website.
+Recorded on 2026-07-19, before publishing version 1.1.10 and the official website.
 
 ## Chrome Web Store search
 
@@ -23,6 +23,6 @@ The following ranks are the manual observations supplied at the start of this re
 
 ## Change being measured
 
-Version 1.1.9 adds Russian and Italian, clarifies the distinction from neighboring-tab selection and reopening closed tabs, adds three explanatory screenshots and a small promotional tile, and publishes an English/Japanese official site with canonical URLs, hreflang, sitemap, and `SoftwareApplication` structured data.
+Version 1.1.10 adds Russian and Italian, clarifies the distinction from neighboring-tab selection and reopening closed tabs, refreshes the icon and promotional tile, adds three explanatory screenshots, and publishes an English/Japanese official site with canonical URLs, hreflang, sitemap, and `SoftwareApplication` structured data.
 
 Recheck after the new listing is approved and indexed. Search and AI Overview inclusion are controlled by Google and are not guaranteed.
