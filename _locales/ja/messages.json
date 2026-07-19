@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "Last Tab Focus - 直前のタブに戻る",
+    "message": "Last Tab Focus - タブを閉じたら直前に戻る",
     "description": "Chrome と Chrome ウェブストアに表示される拡張機能名。"
   },
   "extensionDescription": {
-    "message": "今のタブを閉じたとき、直前のタブへ戻るだけのシンプルな拡張機能です",
+    "message": "Chromeで今のタブを閉じると、同じウィンドウ内で右隣や左隣ではなく、直前まで使っていたタブへ戻ります。",
     "description": "Chrome と Chrome ウェブストアに表示される短い説明。"
   }
 }

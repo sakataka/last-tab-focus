@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chromeでタブを閉じたら直前に使っていたタブへ戻る拡張機能 – Last Tab Focus</title>
+  <meta name="description" content="Chromeで今のタブを閉じると、同じウィンドウ内で左右の隣ではなく直前まで使っていたタブへ戻る、単機能の拡張機能です。">
+  <link rel="canonical" href="https://sakataka.github.io/last-tab-focus/ja/">
+  <link rel="alternate" hreflang="en" href="https://sakataka.github.io/last-tab-focus/">
+  <link rel="alternate" hreflang="ja" href="https://sakataka.github.io/last-tab-focus/ja/">
+  <link rel="alternate" hreflang="x-default" href="https://sakataka.github.io/last-tab-focus/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="タブを閉じたら直前のタブへ戻る – Last Tab Focus">
+  <meta property="og:description" content="右隣や左隣ではなく、直前まで使っていたChromeタブへ戻ります。">
+  <meta property="og:url" content="https://sakataka.github.io/last-tab-focus/ja/">
+  <meta property="og:image" content="https://sakataka.github.io/last-tab-focus/assets/store-promo-440x280.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../assets/icon128.png">
+  <link rel="stylesheet" href="../styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Last Tab Focus",
+    "description": "Chromeで今のタブを閉じると、同じウィンドウ内で直前まで使っていたタブへ戻る拡張機能です。",
+    "url": "https://sakataka.github.io/last-tab-focus/ja/",
+    "downloadUrl": "https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag",
+    "sameAs": ["https://github.com/sakataka/last-tab-focus"],
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Chrome",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <header class="site-header">
+    <a class="brand" href="./"><img src="../assets/icon128.png" width="36" height="36" alt=""><span>Last Tab Focus</span></a>
+    <a class="language-link" lang="en" hreflang="en" href="../">English</a>
+  </header>
+  <main id="main">
+    <section class="intro">
+      <div>
+        <h1>Chromeでタブを閉じたら、直前に使っていたタブへ戻る拡張機能</h1>
+        <p class="lede">同じウィンドウ内で、右隣や左隣ではなく、実際に直前まで見ていたタブへ戻ります。</p>
+        <div class="actions"><a class="button primary" href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Chromeウェブストアから追加</a><a class="button" href="https://github.com/sakataka/last-tab-focus">GitHubでソースを見る</a></div>
+      </div>
+      <figure class="intro-visual"><img src="../assets/store-screenshot-1-basic-1280x800.png" width="1280" height="800" alt="現在のタブを閉じて直前に使っていたタブへ戻るChromeの動作"></figure>
+    </section>
+
+    <section class="section" aria-labelledby="problem-title"><div class="section-heading"><h2 id="problem-title">隣のタブが、さっき見ていたタブとは限りません</h2><p>タブを閉じたとき、Chromeはタブバーの並びに沿って別のタブを選ぶことがあります。Last Tab Focusは、並び順ではなく直前の利用履歴に沿って戻り先を選びます。</p></div><div class="comparison"><article class="card"><p class="label">タブの並び</p><h3>A・B・C</h3><p>AからCへ移動した場合、Cの隣はBです。</p></article><article class="card"><p class="label">実際の利用履歴</p><h3>A → C → 閉じる</h3><p>Cを閉じると、隣のBではなく直前に使っていたAへ戻ります。</p></article></div></section>
+
+    <section class="section" aria-labelledby="how-title"><div class="section-heading"><h2 id="how-title">一つの動作を、3つの例で</h2><p>変えるのは現在のタブを閉じたあとのフォーカスだけです。ポップアップや設定画面はありません。</p></div><div class="screenshot-list">
+      <article class="screenshot-card"><img src="../assets/store-screenshot-1-basic-1280x800.png" width="1280" height="800" alt="タブを閉じて直前のタブへ戻る基本動作"><div class="screenshot-copy"><h3>閉じて、直前へ戻る</h3><ol class="steps"><li>タブAを使う</li><li>タブBへ移動する</li><li><kbd>Ctrl</kbd>+<kbd>W</kbd> または <kbd>Command</kbd>+<kbd>W</kbd> でBを閉じる</li><li>Aへ戻る</li></ol></div></article>
+      <article class="screenshot-card"><img src="../assets/store-screenshot-2-history-not-neighbor-1280x800.png" width="1280" height="800" alt="隣のタブではなく利用履歴に沿って戻る動作"><div class="screenshot-copy"><h3>左右ではなく、利用履歴へ</h3><p>Aを使ったあとCへ移動し、Cを閉じると、隣のBではなくAへ戻ります。</p></div></article>
+      <article class="screenshot-card"><img src="../assets/store-screenshot-3-sequence-1280x800.png" width="1280" height="800" alt="複数タブを閉じて利用履歴を戻る動作"><div class="screenshot-copy"><h3>複数のタブを続けて閉じる</h3><p>A → B → Cの順で使った場合、Cを閉じるとBへ、続けてBを閉じるとAへ戻ります。</p></div></article>
+    </div></section>
+
+    <section class="section" aria-labelledby="scope-title"><div class="section-heading"><h2 id="scope-title">閉じたタブの復元ではありません</h2><p>閉じたタブの復元は、閉じたページそのものを再度開く機能です。Last Tab Focusは、今のタブを閉じたあと、まだ開いているどのタブを表示するかだけを変えます。</p></div><div class="feature-grid"><article class="card"><h3>同じChromeウィンドウ内</h3><p>利用履歴はウィンドウごとに分かれています。別のChromeウィンドウへ移動しません。</p></article><article class="card"><h3>タブ管理ツールではない</h3><p>タブグループ、サイドパネル、セッション保存、ワークスペース、アカウント、同期機能はありません。</p></article></div></section>
+
+    <section class="section" aria-labelledby="privacy-title"><div class="section-heading"><h2 id="privacy-title">ローカルで完結する、小さな拡張機能</h2><p>タブの利用履歴はChromeのセッションストレージに置かれ、開いている直前のタブを選ぶためだけに使われます。</p></div><div class="privacy-grid"><article class="card"><h3>アナリティクスなし</h3><p>トラッキングスクリプト、Cookie、利用状況解析はありません。</p></article><article class="card"><h3>外部通信なし</h3><p>API呼び出し、リモートサービス、外部フォントの読み込みはありません。</p></article><article class="card"><h3>閲覧データを送信しない</h3><p>タブの利用履歴が外部へ送られることはありません。</p></article></div></section>
+
+    <section class="section" aria-labelledby="faq-title"><div class="section-heading"><h2 id="faq-title">よくある質問</h2></div>
+      <details><summary>すでに閉じたタブを復元しますか？</summary><p>いいえ。閉じたタブを再度開く場合はChromeの「閉じたタブを開く」を使います。Last Tab Focusは、現在のタブを閉じたあと、まだ開いているタブを選びます。</p></details>
+      <details><summary>Ctrl+WとCommand+Wの両方で使えますか？</summary><p>はい。Windows/LinuxのCtrl+W、macOSのCommand+W、タブの閉じるボタンなど、Chromeの通常の方法で現在のタブを閉じたときに動作します。</p></details>
+      <details><summary>別のChromeウィンドウへ移動しますか？</summary><p>いいえ。同じウィンドウ内で直前まで使っていたタブへ戻ります。</p></details>
+      <details><summary>データを収集しますか？</summary><p>いいえ。アナリティクス、トラッキング、アカウント、外部通信、閲覧データの送信はありません。正確な範囲はプライバシーポリシーをご覧ください。</p></details>
+    </section>
+  </main>
+  <footer><span>sakatakaが開発するオープンソースのChrome拡張機能です。</span><nav aria-label="フッター"><a href="https://github.com/sakataka/last-tab-focus/blob/main/PRIVACY.md">プライバシーポリシー</a><a href="https://github.com/sakataka/last-tab-focus">GitHub</a><a href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Chromeウェブストア</a></nav></footer>
+</body>
+</html>

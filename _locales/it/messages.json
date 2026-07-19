@@ -1,0 +1,10 @@
+{
+  "extensionName": {
+    "message": "Last Tab Focus - scheda precedente",
+    "description": "Nome dell'estensione mostrato in Chrome e nel Chrome Web Store."
+  },
+  "extensionDescription": {
+    "message": "Chiudi la scheda corrente con Ctrl+W o Command+W e torna all'ultima scheda attiva nella stessa finestra di Chrome.",
+    "description": "Descrizione breve mostrata in Chrome e nel Chrome Web Store."
+  }
+}

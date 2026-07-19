@@ -4,6 +4,12 @@ Last Tab Focus is a Chrome extension focused on one thing: when you close the cu
 
 It is intentionally narrow in scope. It does not try to be a full tab manager. It only changes close behavior, and it keeps that behavior local to your browser session.
 
+- [Official website](https://sakataka.github.io/last-tab-focus/)
+- [日本語の公式ページ](https://sakataka.github.io/last-tab-focus/ja/)
+- [Chrome Web Store](https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag)
+
+日本語: Chromeで今のタブを閉じると、同じウィンドウ内で右隣や左隣ではなく、直前まで使っていたタブへ戻る拡張機能です。閉じたタブを復元する機能ではありません。
+
 ## Features
 
 - **Last-used tab restore**: Returns to the tab you were actually using, not simply the tab to the left or right
@@ -17,7 +23,7 @@ It is intentionally narrow in scope. It does not try to be a full tab manager. I
 
 Install the published extension from the Chrome Web Store listing if you want automatic updates:
 
-https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag
+[Install Last Tab Focus from the Chrome Web Store](https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag)
 
 ### From Source (Developer Mode)
 

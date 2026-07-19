@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "Last Tab Focus - 回到上一个标签页",
+    "message": "Last Tab Focus - 关闭后回到上个标签页",
     "description": "显示在 Chrome 和 Chrome 网上应用店中的扩展程序名称。"
   },
   "extensionDescription": {
-    "message": "一个只做一件事的扩展：关闭当前标签页后回到上一个标签页",
+    "message": "关闭当前标签页后，回到同一 Chrome 窗口中刚才使用的标签页，而不是左侧或右侧相邻标签页。",
     "description": "显示在 Chrome 和 Chrome 网上应用店中的简短说明。"
   }
 }

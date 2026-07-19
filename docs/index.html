@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Last Tab Focus – Return to the Previous Chrome Tab on Close</title>
+  <meta name="description" content="Close the current Chrome tab and return to the previously active tab in the same window—not the neighboring tab and not a reopened closed tab.">
+  <link rel="canonical" href="https://sakataka.github.io/last-tab-focus/">
+  <link rel="alternate" hreflang="en" href="https://sakataka.github.io/last-tab-focus/">
+  <link rel="alternate" hreflang="ja" href="https://sakataka.github.io/last-tab-focus/ja/">
+  <link rel="alternate" hreflang="x-default" href="https://sakataka.github.io/last-tab-focus/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Last Tab Focus – Previous Tab on Close">
+  <meta property="og:description" content="Return to the previously active Chrome tab after closing the current tab.">
+  <meta property="og:url" content="https://sakataka.github.io/last-tab-focus/">
+  <meta property="og:image" content="https://sakataka.github.io/last-tab-focus/assets/store-promo-440x280.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/icon128.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Last Tab Focus",
+    "description": "Close the current Chrome tab and return to the previously active tab in the same window.",
+    "url": "https://sakataka.github.io/last-tab-focus/",
+    "downloadUrl": "https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag",
+    "sameAs": ["https://github.com/sakataka/last-tab-focus"],
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Chrome",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="./"><img src="assets/icon128.png" width="36" height="36" alt=""><span>Last Tab Focus</span></a>
+    <a class="language-link" lang="ja" hreflang="ja" href="ja/">日本語</a>
+  </header>
+  <main id="main">
+    <section class="intro">
+      <div>
+        <h1>Return to the previously active Chrome tab after closing the current tab</h1>
+        <p class="lede">Last Tab Focus sends you back to the tab you were actually using in the same window—not merely the tab on the left or right.</p>
+        <div class="actions">
+          <a class="button primary" href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Install from Chrome Web Store</a>
+          <a class="button" href="https://github.com/sakataka/last-tab-focus">View source on GitHub</a>
+        </div>
+      </div>
+      <figure class="intro-visual">
+        <img src="assets/store-screenshot-1-basic-1280x800.png" width="1280" height="800" alt="Chrome returning from the closed current tab to the previously active tab">
+      </figure>
+    </section>
+
+    <section class="section" aria-labelledby="problem-title">
+      <div class="section-heading">
+        <h2 id="problem-title">The tab beside it is not always the tab you came from</h2>
+        <p>When you close a tab, Chrome’s next selection can follow the tab strip rather than your recent path. That can break the simple expectation that closing the current page takes you back to what you were just reading.</p>
+      </div>
+      <div class="comparison">
+        <article class="card"><p class="label">Tab-strip order</p><h3>A · B · C</h3><p>After moving from A to C, the neighboring tab is B.</p></article>
+        <article class="card"><p class="label">Your actual history</p><h3>A → C → close</h3><p>Last Tab Focus returns to A, because A was the previously active tab.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="how-title">
+      <div class="section-heading"><h2 id="how-title">One behavior, shown three ways</h2><p>The extension changes focus only after the current tab closes. It does not add a popup or settings screen.</p></div>
+      <div class="screenshot-list">
+        <article class="screenshot-card"><img src="assets/store-screenshot-1-basic-1280x800.png" width="1280" height="800" alt="Basic close and return behavior"><div class="screenshot-copy"><h3>Close and go back</h3><ol class="steps"><li>Use tab A.</li><li>Move to tab B.</li><li>Close B with <kbd>Ctrl</kbd>+<kbd>W</kbd> or <kbd>Command</kbd>+<kbd>W</kbd>.</li><li>Chrome returns to A.</li></ol></div></article>
+        <article class="screenshot-card"><img src="assets/store-screenshot-2-history-not-neighbor-1280x800.png" width="1280" height="800" alt="Returning by usage history instead of neighboring tab order"><div class="screenshot-copy"><h3>History, not adjacency</h3><p>Use A, move to C, then close C. The focus returns to A instead of the neighboring tab B.</p></div></article>
+        <article class="screenshot-card"><img src="assets/store-screenshot-3-sequence-1280x800.png" width="1280" height="800" alt="Walking back through tab focus history while closing multiple tabs"><div class="screenshot-copy"><h3>Close several tabs</h3><p>After using A → B → C, closing C returns to B. Closing B then returns to A.</p></div></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="scope-title">
+      <div class="section-heading"><h2 id="scope-title">It does not reopen closed tabs</h2><p>Reopening a closed tab brings the closed page back. Last Tab Focus does something narrower: it chooses which already-open tab receives focus after the current tab closes.</p></div>
+      <div class="feature-grid">
+        <article class="card"><h3>Same Chrome window</h3><p>Focus history is kept separately for each window, so the extension does not jump to another Chrome window.</p></article>
+        <article class="card"><h3>Not a tab manager</h3><p>No tab groups, side panel, session manager, saved workspace, account, or sync service.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="privacy-title">
+      <div class="section-heading"><h2 id="privacy-title">Local and deliberately small</h2><p>Tab focus history stays in Chrome’s session storage and is used only to select the previous open tab.</p></div>
+      <div class="privacy-grid">
+        <article class="card"><h3>No analytics</h3><p>No tracking script, cookie, or usage analytics.</p></article>
+        <article class="card"><h3>No external communication</h3><p>No API calls, remote service, or external font request.</p></article>
+        <article class="card"><h3>No browsing data sent</h3><p>Your tab history is not transmitted anywhere.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <div class="section-heading"><h2 id="faq-title">Frequently asked questions</h2></div>
+      <details><summary>Does it restore a tab I already closed?</summary><p>No. Use Chrome’s reopen-closed-tab command for that. Last Tab Focus selects a still-open tab after the current tab closes.</p></details>
+      <details><summary>Does it work with Ctrl+W and Command+W?</summary><p>Yes. It responds when Chrome closes the current tab, whether you use Ctrl+W on Windows/Linux, Command+W on macOS, the tab’s close button, or another standard close action.</p></details>
+      <details><summary>Does it move between Chrome windows?</summary><p>No. It returns to the previously active tab in the same window.</p></details>
+      <details><summary>Does it collect data?</summary><p>No. There is no analytics, tracking, account, external communication, or browsing-data transmission. See the privacy policy for the exact scope.</p></details>
+    </section>
+  </main>
+  <footer>
+    <span>Open-source Chrome extension by sakataka.</span>
+    <nav aria-label="Footer"><a href="https://github.com/sakataka/last-tab-focus/blob/main/PRIVACY.md">Privacy policy</a><a href="https://github.com/sakataka/last-tab-focus">GitHub</a><a href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Chrome Web Store</a></nav>
+  </footer>
+</body>
+</html>
