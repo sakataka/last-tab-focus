@@ -7,6 +7,8 @@ Final upload-ready assets are stored in `docs/assets/` so the official website a
 - `store-screenshot-3-sequence-1280x800.png`: A → B → C, then close back through B to A
 - `store-promo-440x280.png`: global small promotional image
 
+Upload the screenshots in the numbered `1 → 2 → 3` order. The first image explains the basic action, the second distinguishes history from tab position, and the third shows repeated closing through the focus history.
+
 ## Capture conditions
 
 - Chrome 150 on macOS
@@ -22,9 +24,9 @@ Final upload-ready assets are stored in `docs/assets/` so the official website a
 
 The abstract indigo/cobalt background was generated with the built-in image generation tool using this prompt:
 
-> Create a polished, saturated abstract background that suggests smooth backward movement and focus returning, using layered rounded geometric ribbons. Background only; no browser interface, Chrome logo, tabs, app icon, arrows, text, symbols, or watermark.
+> Create an abstract, polished technology background for a Chrome Web Store promotional tile. Use a deep indigo-to-cobalt field with broad flowing ribbons that suggest a smooth return motion from right to left. Add crisp electric cyan and a very small amount of warm coral for contrast. Keep a clean center area for the app icon. Background only; no app icon, browser tabs, arrows, logos, text, letters, watermark, Chrome branding, screenshots, or third-party content.
 
-The actual extension icon and tab/focus composition were added deterministically after generation. AI was not used to generate or alter Chrome UI.
+The actual extension icon and tab/focus composition were added deterministically after generation. Its editable source is `icons/icon.svg`; the packaged PNG sizes are generated from that source. AI was not used to generate the icon or alter Chrome UI.
 
 ## Localization
 

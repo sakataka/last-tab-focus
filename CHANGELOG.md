@@ -5,6 +5,7 @@
 - Add Italian and Russian store locales
 - Clarify that closing a tab returns to the previously active tab, not a neighboring or reopened tab
 - Add Chrome Web Store screenshots and a small promotional image
+- Refresh the extension icon and promotional image with stronger contrast at small sizes
 - Add English and Japanese official product pages
 - No extension behavior, permission, storage, or network changes
 
