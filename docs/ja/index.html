@@ -42,7 +42,7 @@
     <section class="intro">
       <div>
         <h1>Chromeでタブを閉じたら、直前に使っていたタブへ戻る拡張機能</h1>
-        <p class="lede">同じウィンドウ内で、右隣や左隣ではなく、実際に直前まで見ていたタブへ戻ります。</p>
+        <p class="lede">調べものやリンク先の確認を終えたら、タブを閉じて、さっき見ていたタブへ。インストールするだけで使えます。設定は不要です。</p>
         <div class="actions"><a class="button primary" href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Chromeウェブストアから追加</a><a class="button" href="https://github.com/sakataka/last-tab-focus">GitHubでソースを見る</a></div>
       </div>
       <figure class="intro-visual"><img src="../assets/store-screenshot-1-basic-1280x800.png" width="1280" height="800" alt="現在のタブを閉じて直前に使っていたタブへ戻るChromeの動作"></figure>
@@ -61,6 +61,10 @@
     <section class="section" aria-labelledby="privacy-title"><div class="section-heading"><h2 id="privacy-title">ローカルで完結する、小さな拡張機能</h2><p>タブの利用履歴はChromeのセッションストレージに置かれ、開いている直前のタブを選ぶためだけに使われます。</p></div><div class="privacy-grid"><article class="card"><h3>アナリティクスなし</h3><p>トラッキングスクリプト、Cookie、利用状況解析はありません。</p></article><article class="card"><h3>外部通信なし</h3><p>API呼び出し、リモートサービス、外部フォントの読み込みはありません。</p></article><article class="card"><h3>閲覧データを送信しない</h3><p>タブの利用履歴が外部へ送られることはありません。</p></article></div></section>
 
     <section class="section" aria-labelledby="faq-title"><div class="section-heading"><h2 id="faq-title">よくある質問</h2></div>
+      <details><summary>インストール後、どうすれば使えますか？</summary><p>2つのタブを開き、AからBへ切り替えてからBを閉じてみてください。Aへ戻れば動いています。拡張機能のアイコンを押したり、設定画面を開いたりする必要はありません。</p></details>
+      <details><summary>Chromeを再起動しても、タブを使った順番は残りますか？</summary><p>Chromeを再起動すると、それまでの順番はリセットされます。起動後にタブを切り替えると、そこから新しく覚えます。拡張機能を無効にしたときや更新したときもリセットされます。</p></details>
+      <details><summary>思ったタブに戻らないときは？</summary><p>インストール直後など、戻れる履歴がない場合はChromeの通常の動作になります。まず同じウィンドウ内で2つのタブを切り替えてから、今のタブを閉じてみてください。改善しない場合は、下のリンクからご連絡ください。</p></details>
+      <details><summary>不具合はどこに報告できますか？</summary><p><a href="https://github.com/sakataka/last-tab-focus/issues/new?template=bug_report.yml">GitHubで不具合を報告</a>できます。日本語でも大丈夫です。Chromeと拡張機能のバージョン、OS、タブを切り替えた順番、閉じたタブと実際の戻り先を教えてください。ページの内容やURLは不要です。GitHubを使わない方は<a href="mailto:sakataka@gmail.com">メール</a>でもご連絡いただけます。</p></details>
       <details><summary>すでに閉じたタブを復元しますか？</summary><p>いいえ。閉じたタブを再度開く場合はChromeの「閉じたタブを開く」を使います。Last Tab Focusは、現在のタブを閉じたあと、まだ開いているタブを選びます。</p></details>
       <details><summary>Ctrl+WとCommand+Wの両方で使えますか？</summary><p>はい。Windows/LinuxのCtrl+W、macOSのCommand+W、タブの閉じるボタンなど、Chromeの通常の方法で現在のタブを閉じたときに動作します。</p></details>
       <details><summary>別のChromeウィンドウへ移動しますか？</summary><p>いいえ。同じウィンドウ内で直前まで使っていたタブへ戻ります。</p></details>

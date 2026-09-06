@@ -1,105 +1,111 @@
 # Chrome Web Store Descriptions
 
-The six sections below are the source of truth for the localized long descriptions in the Chrome Web Store. Korean (`ko`) is a future candidate, not part of version 1.1.10.
+Source text for the six localized long descriptions. Copy only the body of each section into the matching store locale. Website help is available in English and Japanese.
 
 ## en
 
-Close a tab and return to the tab you were using before it—even when that tab is not next to the one you closed.
+Finished checking a link or reading a search result? Close the tab and return to the one you were just using. Last Tab Focus remembers the order you visit tabs in each Chrome window. There is nothing to set up.
 
-Last Tab Focus remembers the order in which you use tabs within each Chrome window. When you close the current tab with Ctrl+W or Command+W, the most recently used tab that is still open becomes active.
+Use Chrome as usual. Close the current tab with its close button, Ctrl+W on Windows/Linux, or Command+W on Mac. The most recently used tab that is still open in the same window becomes active.
 
-For example, suppose tabs A, B, and C are open. If you switch from A to C and then close C, you return to A, not the neighboring tab B. If you use A, then B, then C, closing C returns to B; closing B returns to A.
+For example, with tabs A, B and C open, switch from A to C and close C: you return to A. If you visit A → B → C, closing C takes you to B, and closing B takes you to A.
 
-The extension only changes which open tab Chrome selects after you close one. It does not reopen closed tabs or add tab groups, saved sessions, side panels, workspaces, or sync.
+To try it after installing, switch between two tabs and close the current one. No popup or settings screen is needed.
 
-Privacy:
+Your tab order stays in your browser for the current session. It is not kept when you restart Chrome. If there is no earlier tab to return to, Chrome chooses the next tab as usual. This extension does not reopen closed tabs.
 
-- Focus history is kept only for the current browser session
-- No analytics or tracking
-- No browsing data is sent anywhere
-- No external communication or remote services
+No analytics, tracking, or external connections. No browsing data is sent anywhere.
+
+Questions or problems? Visit the website for help, or report an issue on GitHub:
+https://sakataka.github.io/last-tab-focus/
+https://github.com/sakataka/last-tab-focus/issues
 
 ## ja
 
-タブを閉じたとき、隣のタブではなく、その直前に見ていたタブへ戻ります。
+調べものやリンク先の確認を終えたら、タブを閉じて、さっき見ていたタブへ。Last Tab Focus は、Chrome のウィンドウごとにタブを使った順番を覚え、閉じたあとの戻り先を選びます。設定は不要です。
 
-Last Tab Focus は、Chrome のウィンドウごとにタブを使った順番を覚えます。Ctrl+W または Command+W で現在のタブを閉じると、まだ開いているタブのうち、直前に使っていたものが表示されます。
+使い方はいつもどおり。タブの閉じるボタン、Windows/Linux の Ctrl+W、Mac の Command+W で今のタブを閉じると、同じウィンドウで直前に使っていた、まだ開いているタブへ戻ります。
 
-たとえば A、B、C の3つのタブが開いているとします。A から C に移動して C を閉じると、隣の B ではなく A に戻ります。A → B → C の順に使った場合は、C を閉じると B に戻り、続けて B を閉じると A に戻ります。
+たとえば、A・B・C の3つのタブが開いているとき、A から C に移って C を閉じると、A に戻ります。A → B → C の順に使った場合は、C を閉じると B へ、続けて B を閉じると A へ戻ります。
 
-閉じたタブを開き直す機能ではありません。タブグループ、セッション保存、サイドパネル、ワークスペース、同期などのタブ管理機能も追加しません。変わるのは、タブを閉じたあとの表示先だけです。
+インストール後は、2つのタブを切り替えてから今のタブを閉じてみてください。ポップアップや設定画面を開く必要はありません。
 
-プライバシー：
+タブを使った順番はブラウザ内だけに保存し、Chrome を再起動するとリセットされます。戻れる履歴がない場合は、Chrome の通常の動作になります。閉じたタブを開き直す機能ではありません。
 
-- タブを使った順番は、現在のブラウザセッション中だけ保持
-- アナリティクスやトラッキングなし
-- 閲覧データの送信なし
-- 外部通信やリモートサービスなし
+利用状況の解析やトラッキング、外部通信は行いません。閲覧データが外部に送られることもありません。
+
+使い方で迷ったときは公式サイトをご覧ください。不具合は GitHub で受け付けています。日本語で報告できます。
+https://sakataka.github.io/last-tab-focus/ja/
+https://github.com/sakataka/last-tab-focus/issues
 
 ## zh_CN
 
-关闭标签页后，切换回之前使用的标签页，即使它并不在刚关闭的标签页旁边。
+查完资料、看完链接里的内容，关掉标签页，就能回到刚才浏览的页面。Last Tab Focus 会记住每个 Chrome 窗口中标签页的使用顺序，无需设置。
 
-Last Tab Focus 会记录每个 Chrome 窗口中标签页的使用顺序。按 Ctrl+W 或 Command+W 关闭当前标签页时，Chrome 会切换到最近使用且仍然打开的标签页。
+照常使用 Chrome 即可。点击标签页的关闭按钮，或按 Ctrl+W（Windows/Linux）、Command+W（Mac），就会切换到同一窗口中最近使用过且仍然打开的标签页。
 
-例如，当前打开了 A、B、C 三个标签页。从 A 切换到 C 后关闭 C，会回到 A，而不是相邻的 B。如果按 A → B → C 的顺序使用，关闭 C 会回到 B，再关闭 B 则会回到 A。
+例如，打开了 A、B、C 三个标签页，从 A 切换到 C 后关闭 C，就会回到 A。如果按 A → B → C 的顺序浏览，关闭 C 会回到 B，再关闭 B 则回到 A。
 
-本扩展只改变关闭标签页后显示哪个仍然打开的标签页。它不会重新打开已关闭的标签页，也不会添加标签页分组、会话保存、侧边栏、工作区或同步等管理功能。
+安装后，可以先在两个标签页之间切换，再关闭当前标签页，试试效果。不用打开扩展弹窗或设置页面。
 
-隐私：
+标签页的使用顺序只保存在浏览器内，重启 Chrome 后会清空。如果没有可返回的使用记录，Chrome 会按原来的方式选择下一个标签页。本扩展不会重新打开已关闭的标签页。
 
-- 标签页使用顺序仅在当前浏览器会话中保留
-- 无分析统计或跟踪
-- 不会发送浏览数据
-- 无外部通信或远程服务
+不做使用情况分析，不跟踪用户，不连接外部服务，也不发送浏览数据。
+
+使用说明和常见问题请见官网；遇到问题可在 GitHub 反馈：
+https://sakataka.github.io/last-tab-focus/
+https://github.com/sakataka/last-tab-focus/issues
 
 ## zh_TW
 
-關閉分頁後，切換回之前使用的分頁，即使它不在剛關閉的分頁旁邊。
+查完資料、看完連結裡的內容，關掉分頁，就能回到剛才瀏覽的頁面。Last Tab Focus 會記住每個 Chrome 視窗中分頁的使用順序，不用另外設定。
 
-Last Tab Focus 會記錄每個 Chrome 視窗中的分頁使用順序。按下 Ctrl+W 或 Command+W 關閉目前的分頁時，Chrome 會切換到最近使用且仍然開啟的分頁。
+照常使用 Chrome 就好。按一下分頁的關閉按鈕，或按 Ctrl+W（Windows/Linux）、Command+W（Mac），就會切換到同一個視窗中最近使用過、而且還開著的分頁。
 
-例如，目前開啟了 A、B、C 三個分頁。從 A 切換到 C 後關閉 C，會回到 A，而不是相鄰的 B。如果依 A → B → C 的順序使用，關閉 C 會回到 B，再關閉 B 則會回到 A。
+例如，開著 A、B、C 三個分頁，從 A 切換到 C 後關閉 C，就會回到 A。如果依 A → B → C 的順序瀏覽，關閉 C 會回到 B，再關閉 B 就會回到 A。
 
-本擴充功能只會改變關閉分頁後顯示哪個仍然開啟的分頁。它不會重新開啟已關閉的分頁，也不會加入分頁群組、工作階段儲存、側邊欄、工作區或同步等管理功能。
+安裝後，可以先在兩個分頁之間切換，再關閉目前的分頁，試試看效果。不用開啟擴充功能的彈出視窗或設定頁面。
 
-隱私：
+分頁的使用順序只保存在瀏覽器裡，重新啟動 Chrome 後就會清除。如果沒有可返回的使用紀錄，Chrome 會依原本的方式選擇下一個分頁。這個擴充功能不會重新開啟已關閉的分頁。
 
-- 分頁使用順序只在目前的瀏覽器工作階段中保留
-- 不含分析或追蹤功能
-- 不會傳送瀏覽資料
-- 不會連線至外部或遠端服務
+不分析使用情況、不追蹤使用者、不連線到外部服務，也不傳送瀏覽資料。
+
+使用說明與常見問題請見官網；遇到問題可以到 GitHub 回報：
+https://sakataka.github.io/last-tab-focus/
+https://github.com/sakataka/last-tab-focus/issues
 
 ## ru
 
-Закройте вкладку — Chrome переключится на ту, с которой вы работали перед ней, даже если она находится не рядом.
+Прочитали статью или проверили ссылку? Закройте вкладку, чтобы вернуться к той, которой пользовались перед ней. Last Tab Focus запоминает порядок использования вкладок в каждом окне Chrome. Ничего настраивать не нужно.
 
-Last Tab Focus запоминает порядок использования вкладок отдельно для каждого окна Chrome. Когда вы закрываете текущую вкладку с помощью Ctrl+W или Command+W, активной становится последняя из ранее использованных вкладок, которая всё ещё открыта.
+Закрывайте вкладки привычным способом: крестиком, сочетанием Ctrl+W в Windows/Linux или Command+W на Mac. Расширение переключит вас на последнюю использованную вкладку, которая ещё открыта в том же окне.
 
-Например, открыты вкладки A, B и C. Если перейти с A на C и закрыть C, Chrome вернётся к A, а не к соседней B. Если работать в порядке A → B → C, после закрытия C откроется B, а после закрытия B — A.
+Например, у вас открыты вкладки A, B и C. Перейдите с A на C и закройте C — вы вернётесь к A. Если просматривать вкладки в порядке A → B → C, закрытие C вернёт вас к B, а закрытие B — к A.
 
-Расширение меняет только выбор открытой вкладки после закрытия текущей. Оно не восстанавливает закрытые вкладки и не добавляет группы вкладок, сохранение сеансов, боковую панель, рабочие пространства или синхронизацию.
+После установки переключитесь между двумя вкладками и закройте текущую, чтобы проверить работу расширения. Открывать всплывающее окно или настройки не требуется.
 
-Конфиденциальность:
+Порядок вкладок хранится только в браузере и сбрасывается при перезапуске Chrome. Если истории ещё нет, Chrome выбирает следующую вкладку как обычно. Уже закрытые вкладки расширение не открывает.
 
-- Порядок вкладок хранится только в течение текущего сеанса браузера
-- Нет аналитики и отслеживания
-- Данные о просмотре никуда не отправляются
-- Нет внешних подключений или удалённых сервисов
+Нет аналитики, отслеживания и обращений к внешним сервисам. Данные о просмотре никуда не отправляются.
+
+Инструкции и ответы на частые вопросы — на сайте. Об ошибке можно сообщить на GitHub:
+https://sakataka.github.io/last-tab-focus/
+https://github.com/sakataka/last-tab-focus/issues
 
 ## it
 
-Quando chiudi una scheda, torni a quella che stavi usando prima, anche se non si trova accanto alla scheda appena chiusa.
+Hai finito di leggere una pagina o di controllare un link? Chiudi la scheda e torna a quella che stavi usando prima. Last Tab Focus ricorda l’ordine in cui usi le schede in ogni finestra di Chrome. Non serve configurare nulla.
 
-Last Tab Focus ricorda l'ordine di utilizzo delle schede in ogni finestra di Chrome. Quando chiudi la scheda corrente con Ctrl+W o Command+W, torna all'ultima scheda usata che è ancora aperta.
+Usa Chrome come sempre. Chiudi la scheda con la X, con Ctrl+W su Windows/Linux o con Command+W su Mac: tornerai all’ultima scheda usata che è ancora aperta nella stessa finestra.
 
-Per esempio, supponiamo che siano aperte le schede A, B e C. Se passi da A a C e chiudi C, torni ad A, non alla scheda adiacente B. Se usi le schede nell'ordine A → B → C, chiudendo C torni a B e chiudendo B torni ad A.
+Per esempio, con le schede A, B e C aperte, passa da A a C e chiudi C: tornerai ad A. Se le usi nell’ordine A → B → C, chiudendo C torni a B e chiudendo B torni ad A.
 
-L'estensione cambia soltanto la scheda aperta che Chrome mostra dopo la chiusura di quella corrente. Non riapre le schede chiuse e non aggiunge gruppi di schede, sessioni salvate, pannelli laterali, spazi di lavoro o sincronizzazione.
+Per provarla dopo l’installazione, passa da una scheda all’altra e chiudi quella attuale. Non occorre aprire popup o schermate di impostazioni.
 
-Privacy:
+L’ordine delle schede rimane nel browser e viene azzerato al riavvio di Chrome. Se non c’è una scheda precedente a cui tornare, Chrome sceglie la successiva come al solito. L’estensione non riapre le schede già chiuse.
 
-- L'ordine delle schede viene conservato solo per la sessione corrente del browser
-- Nessuna analisi e nessun tracciamento
-- Nessun dato di navigazione viene inviato
-- Nessuna comunicazione esterna o servizio remoto
+Nessuna analisi dell’utilizzo, nessun tracciamento e nessuna connessione a servizi esterni. I dati di navigazione non vengono inviati da nessuna parte.
+
+Trovi le istruzioni e le risposte alle domande frequenti sul sito. Per segnalare un problema, usa GitHub:
+https://sakataka.github.io/last-tab-focus/
+https://github.com/sakataka/last-tab-focus/issues

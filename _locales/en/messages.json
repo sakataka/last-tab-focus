@@ -4,7 +4,7 @@
     "description": "Extension name shown in Chrome and the Chrome Web Store."
   },
   "extensionDescription": {
-    "message": "Close the current tab with Ctrl+W or Command+W and return to the previously active tab in the same Chrome window.",
+    "message": "Close a tab and return to the one you were just using in the same Chrome window. No setup needed.",
     "description": "Short extension description shown in Chrome and the Chrome Web Store."
   }
 }

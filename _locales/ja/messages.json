@@ -4,7 +4,7 @@
     "description": "Chrome と Chrome ウェブストアに表示される拡張機能名。"
   },
   "extensionDescription": {
-    "message": "Chromeで今のタブを閉じると、同じウィンドウ内で右隣や左隣ではなく、直前まで使っていたタブへ戻ります。",
+    "message": "タブを閉じると、同じ Chrome ウィンドウで直前に見ていたタブへ戻ります。設定は不要です。",
     "description": "Chrome と Chrome ウェブストアに表示される短い説明。"
   }
 }

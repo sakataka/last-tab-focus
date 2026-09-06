@@ -5,12 +5,14 @@
 Run the lightweight history regression tests:
 
 ```bash
-node --test history.test.mjs
+node --test *.test.mjs
 ```
 
 ## Manual Regression Checklist
 
-Load the extension in `chrome://extensions/` and keep the service worker inspector open while testing.
+Load the extension in `chrome://extensions/`. Run the checklist with the service worker inspector and other DevTools windows closed, as in normal use. Inspect logs only after a failure; repeat any reproduction with DevTools closed because debugging can keep the worker alive.
+
+Repeat the basic close test with the tab close button and Ctrl+W / Command+W. Record the browser version and whether DevTools was closed.
 
 1. Single window history
    - Open tabs A, B, and C in one window
@@ -56,3 +58,31 @@ Load the extension in `chrome://extensions/` and keep the service worker inspect
    - Build history in two windows
    - Close one entire window
    - Continue using the remaining window and confirm focus restoration still works
+
+9. Fast consecutive closing
+   - Activate A → B → C → D, then close D and C in quick succession
+   - Confirm the remaining active tab is B; closing B should return to A
+
+10. User selection during restore
+    - Close the current tab and immediately select a different remaining tab
+    - Confirm the extension does not pull focus away from that selection
+    - Repeat while Chrome is busy; record any failure with the exact steps
+
+11. Worker suspension without DevTools
+    - Activate A → B → C and leave Chrome idle for at least 60 seconds, with DevTools closed
+    - Close C and confirm focus returns to B, then close B and confirm A
+    - Separately use Chrome's worker controls to stop the worker and repeat; idle time alone does not prove suspension
+
+12. Browser restart
+    - Restart an isolated test browser with restored tabs; do not restart a personal session for this check
+    - Confirm that the old focus order is not assumed
+    - Build a new A → B → C history and verify closing C returns to B
+
+Automated background tests use a simulated Chrome event/API boundary. They cover queue ordering and persisted state, but do not replace these real-browser checks or prove that Chrome emits events in every simulated order.
+
+## Verification recorded on 2026-09-06
+
+- `node --test *.test.mjs`: 28 tests passed, including four background-event integration tests.
+- Chrome for Testing 153.0.8010.12, isolated persistent profile, extension 1.1.11 loaded: actual `chrome.tabs` activation/removal events restored a non-neighbor tab and walked back through consecutive closes.
+- English/Japanese website: all eight FAQ entries opened and closed; no horizontal overflow or broken images at 1280, 420, and 390 CSS pixels. Desktop and mobile screenshots inspected.
+- The browser check used headless Chrome and API-driven closes. Native close-button/keyboard input, idle worker suspension, and other operating systems remain manual checks; this run does not claim those were verified.

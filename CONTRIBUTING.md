@@ -15,7 +15,7 @@ Thank you for your interest in contributing to Last Tab Focus!
 1. Create a new branch: `git checkout -b your-feature-name`
 2. Make your changes
 3. Test thoroughly:
-   - Run `node --test history.test.mjs`
+   - Run `node --test *.test.mjs`
    - Follow the manual scenarios in `TESTING.md`
    - Check service worker console for errors
    - Test with multiple tabs and windows

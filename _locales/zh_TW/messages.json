@@ -4,7 +4,7 @@
     "description": "顯示在 Chrome 和 Chrome 線上應用程式商店中的擴充功能名稱。"
   },
   "extensionDescription": {
-    "message": "關閉目前分頁後，回到同一個 Chrome 視窗中剛才使用的分頁，而不是左側或右側相鄰分頁。",
+    "message": "關閉分頁，回到同一個 Chrome 視窗中剛才瀏覽的分頁。不用設定，安裝後就能使用。",
     "description": "顯示在 Chrome 和 Chrome 線上應用程式商店中的簡短說明。"
   }
 }

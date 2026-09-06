@@ -60,7 +60,7 @@ Install the published extension from the Chrome Web Store listing if you want au
 Run the lightweight regression test suite:
 
 ```bash
-node --test history.test.mjs
+node --test *.test.mjs
 ```
 
 Then follow the manual checklist in [`TESTING.md`](./TESTING.md) to verify browser behavior.
@@ -107,7 +107,7 @@ We welcome contributions! Please follow these steps:
    ```
 3. Make your changes following the existing code style
 4. Test thoroughly:
-   - Run `node --test history.test.mjs`
+   - Run `node --test *.test.mjs`
    - Follow [`TESTING.md`](./TESTING.md)
    - Test with multiple tabs and windows
    - Check service worker console for errors

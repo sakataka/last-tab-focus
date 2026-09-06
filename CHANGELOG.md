@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.11
+
+- Rewrite short and long store descriptions in all six supported languages
+- Add setup, session-history, and support guidance to the English and Japanese website
+- Expand background-event regression coverage and normal-use browser test instructions
+- No extension behavior, permission, storage, or network changes
+
 ## 1.1.10
 
 - Refresh the extension icon and promotional image with stronger contrast at small sizes

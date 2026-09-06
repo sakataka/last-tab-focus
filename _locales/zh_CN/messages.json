@@ -4,7 +4,7 @@
     "description": "显示在 Chrome 和 Chrome 网上应用店中的扩展程序名称。"
   },
   "extensionDescription": {
-    "message": "关闭当前标签页后，回到同一 Chrome 窗口中刚才使用的标签页，而不是左侧或右侧相邻标签页。",
+    "message": "关闭标签页，回到同一 Chrome 窗口中刚才浏览的标签页。无需设置，安装后即可使用。",
     "description": "显示在 Chrome 和 Chrome 网上应用店中的简短说明。"
   }
 }

@@ -43,7 +43,7 @@
     <section class="intro">
       <div>
         <h1>Return to the previously active Chrome tab after closing the current tab</h1>
-        <p class="lede">Last Tab Focus sends you back to the tab you were actually using in the same window—not merely the tab on the left or right.</p>
+        <p class="lede">Finished checking a link or reading a search result? Close the tab and return to the one you were just using. Install Last Tab Focus and browse as usual. There is nothing to set up.</p>
         <div class="actions">
           <a class="button primary" href="https://chromewebstore.google.com/detail/last-tab-focus/ajcopfjanohkekmmpcjncmoicfgfebag">Install from Chrome Web Store</a>
           <a class="button" href="https://github.com/sakataka/last-tab-focus">View source on GitHub</a>
@@ -93,6 +93,10 @@
 
     <section class="section" aria-labelledby="faq-title">
       <div class="section-heading"><h2 id="faq-title">Frequently asked questions</h2></div>
+      <details><summary>How do I try it after installing?</summary><p>Open two tabs, switch from A to B, then close B. If you return to A, it is working. You do not need to click the extension icon or open a settings screen.</p></details>
+      <details><summary>Does it remember my tab order after restarting Chrome?</summary><p>No. The order resets when Chrome restarts. Switch between tabs to build a new history. Disabling or updating the extension also resets it.</p></details>
+      <details><summary>Why did it return to a different tab than I expected?</summary><p>If there is no earlier tab in its history, such as just after installation, Chrome chooses the next tab as usual. Try switching between two tabs in the same window, then close the current one. If the problem continues, please get in touch below.</p></details>
+      <details><summary>How can I report a problem?</summary><p><a href="https://github.com/sakataka/last-tab-focus/issues/new?template=bug_report.yml">Report a bug on GitHub</a> with your Chrome version, extension version, operating system, the order you switched tabs, and what happened when you closed one. You can label tabs A, B and C; page contents and URLs are not needed. If you do not use GitHub, you can <a href="mailto:sakataka@gmail.com">send an email</a>.</p></details>
       <details><summary>Does it restore a tab I already closed?</summary><p>No. Use Chrome’s reopen-closed-tab command for that. Last Tab Focus selects a still-open tab after the current tab closes.</p></details>
       <details><summary>Does it work with Ctrl+W and Command+W?</summary><p>Yes. It responds when Chrome closes the current tab, whether you use Ctrl+W on Windows/Linux, Command+W on macOS, the tab’s close button, or another standard close action.</p></details>
       <details><summary>Does it move between Chrome windows?</summary><p>No. It returns to the previously active tab in the same window.</p></details>
