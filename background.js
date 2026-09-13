@@ -6,9 +6,6 @@ import {
   normalizeTabMetadata,
   normalizeWindowHistory,
   moveTabInActivationByWindow,
-  pruneActivationByWindow,
-  pruneTabMetadata,
-  pruneWindowHistory,
   replaceTabInActivationByWindow,
   replaceTabInAllWindowHistories,
   replaceTabInTabIdList,
@@ -137,7 +134,6 @@ async function hydrateState() {
       chrome.tabs.query({}),
     ]);
 
-    const openTabsById = buildOpenTabsById(openTabs);
     const normalizedState = storedState && typeof storedState === 'object' ? storedState : {};
 
     let nextWindowHistory = normalizeWindowHistory(normalizedState.windowHistory, MAX_HISTORY_SIZE);
@@ -145,14 +141,14 @@ async function hydrateState() {
       nextWindowHistory = buildHistoryFromTabs(openTabs);
     }
 
-    windowHistory = pruneWindowHistory(nextWindowHistory, openTabsById, MAX_HISTORY_SIZE);
-    tabMetadata = pruneTabMetadata(
-      normalizeTabMetadata(normalizedState.tabMetadata),
-      openTabsById,
-    );
-    lastActivationByWindow = pruneActivationByWindow(
-      normalizeActivationByWindow(normalizedState.lastActivationByWindow),
-      openTabsById,
+    // Keep persisted entries until their Chrome event is handled. On a cold
+    // service-worker start, tabs.query() may already omit the tab whose
+    // onRemoved event woke the worker. Pruning here would erase the evidence
+    // needed to recognize that close and choose its restore target.
+    windowHistory = nextWindowHistory;
+    tabMetadata = normalizeTabMetadata(normalizedState.tabMetadata);
+    lastActivationByWindow = normalizeActivationByWindow(
+      normalizedState.lastActivationByWindow,
     );
     pendingRestoreByWindow =
       normalizedState.pendingRestoreByWindow &&
@@ -250,18 +246,6 @@ function buildActivationStateFromTabs(tabs, currentWindowHistory) {
   return nextActivationByWindow;
 }
 
-function buildOpenTabsById(tabs) {
-  const openTabsById = {};
-
-  for (const tab of tabs) {
-    if (isValidTabId(tab.id) && isValidWindowId(tab.windowId)) {
-      openTabsById[tab.id] = tab;
-    }
-  }
-
-  return openTabsById;
-}
-
 async function handleTabCreated(tab) {
   await ensureHistoryLoaded();
 
@@ -297,9 +281,22 @@ async function handleTabActivated(activeInfo, eventTime) {
       ? {
           ...pendingRestore,
           restoreWindowMs: RESTORE_CONFIRMATION_WINDOW_MS,
+          transientActivationWindowMs: CLOSE_EVENT_REORDER_WINDOW_MS,
         }
       : null,
   });
+
+  if (pendingResolution.action === 'transient') {
+    windowHistory = pendingResolution.windowHistory;
+    lastActivationByWindow = pendingResolution.lastActivationByWindow;
+    pendingRestoreByWindow[String(activeInfo.windowId)] = {
+      ...pendingRestore,
+      awaitingChromeActivation: false,
+    };
+    await persistState();
+    await activatePendingRestore(activeInfo.windowId, eventTime);
+    return;
+  }
 
   if (pendingResolution.action === 'expired' || pendingResolution.action === 'override') {
     delete pendingRestoreByWindow[String(activeInfo.windowId)];
@@ -414,8 +411,10 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
 
   pendingRestoreByWindow[String(removeInfo.windowId)] = {
     targetTabId: nextTab.id,
+    openerFallbackTabId: restorePlan.openerFallbackTabId,
     removalTime: eventTime,
     historyAfterClose: getWindowHistory(windowHistory, removeInfo.windowId),
+    awaitingChromeActivation: !restorePlan.usedTransientActivation,
   };
 
   // Persist the pending restore before any async Chrome API calls so that a
@@ -423,34 +422,65 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
   // recover the pending state.
   await persistState();
 
-  const updatedTab = await safeUpdateTab(nextTab.id, { active: true });
-  if (updatedTab) {
-    const activeTab = await safeGetActiveTabInWindow(removeInfo.windowId);
-    if (activeTab?.id === nextTab.id) {
-      delete pendingRestoreByWindow[String(removeInfo.windowId)];
-      const previousHistory = getWindowHistory(windowHistory, removeInfo.windowId);
+  // Current Chrome versions report removal before the automatic neighboring-tab
+  // activation. Wait for that activation so it can be ignored instead of being
+  // inserted into history. Older activation-before-removal ordering is handled
+  // by resolveCloseRestorePlan and can restore immediately.
+  if (restorePlan.usedTransientActivation) {
+    await activatePendingRestore(removeInfo.windowId, eventTime);
+  }
+}
 
-      windowHistory = addToWindowHistory(
-        windowHistory,
-        removeInfo.windowId,
-        nextTab.id,
-        MAX_HISTORY_SIZE,
-      );
-      lastActivationByWindow = setActivationRecord(lastActivationByWindow, removeInfo.windowId, {
-        tabId: nextTab.id,
-        eventTime,
-        previousHistory,
-      });
-      await persistState();
-    }
-    // If a different tab is now active, pendingRestoreByWindow stays set.
-    // handleTabActivated will consume it as 'confirmed', 'override', or 'expired'.
-  } else {
-    delete pendingRestoreByWindow[String(removeInfo.windowId)];
-    // Persist the deletion so that a service worker restart after a failed
-    // safeUpdateTab() does not reload a stale pending restore from storage.
+async function activatePendingRestore(windowId, eventTime) {
+  const pendingRestore = pendingRestoreByWindow[String(windowId)];
+  if (!pendingRestore) {
+    return;
+  }
+
+  const nextTab = await resolveRestoreTargetTab(
+    windowId,
+    pendingRestore.targetTabId,
+    pendingRestore.openerFallbackTabId,
+  );
+  if (!nextTab) {
+    delete pendingRestoreByWindow[String(windowId)];
+    await persistState();
+    return;
+  }
+
+  pendingRestoreByWindow[String(windowId)] = {
+    ...pendingRestore,
+    targetTabId: nextTab.id,
+    awaitingChromeActivation: false,
+  };
+
+  const activeTab = await safeGetActiveTabInWindow(windowId);
+  if (activeTab?.id === nextTab.id) {
+    delete pendingRestoreByWindow[String(windowId)];
+    const previousHistory = getWindowHistory(windowHistory, windowId);
+    windowHistory = addToWindowHistory(
+      windowHistory,
+      windowId,
+      nextTab.id,
+      MAX_HISTORY_SIZE,
+    );
+    lastActivationByWindow = setActivationRecord(lastActivationByWindow, windowId, {
+      tabId: nextTab.id,
+      eventTime,
+      previousHistory,
+    });
+    await persistState();
+    return;
+  }
+
+  await persistState();
+  const updatedTab = await safeUpdateTab(nextTab.id, { active: true });
+  if (!updatedTab) {
+    delete pendingRestoreByWindow[String(windowId)];
     await persistState();
   }
+  // The onActivated event confirms the update and finalizes history. Keeping
+  // the pending record persisted also survives a worker stop between calls.
 }
 
 async function handleTabReplaced(addedTabId, removedTabId) {

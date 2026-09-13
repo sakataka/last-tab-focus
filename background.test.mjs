@@ -63,18 +63,31 @@ function browser(stored = {}) {
     async visit(id) { now += 100; activate(id); await flush(); },
     close(id, fallbackId) {
       tabs.delete(id);
+      events.onRemoved.emit(id, { windowId: 1, isWindowClosing: false });
+      if (fallbackId) activate(fallbackId);
+    },
+    closeActivationFirst(id, fallbackId) {
+      tabs.delete(id);
       if (fallbackId) activate(fallbackId);
       events.onRemoved.emit(id, { windowId: 1, isWindowClosing: false });
     },
     onUpdate(fn) { updateHook = fn; },
     select(id) { now += 1; activate(id); },
     async restartWorker() { await flush(); startWorker(); await flush(); },
+    async restartWorkerOnClose(id, fallbackId) {
+      await flush();
+      startWorker();
+      tabs.delete(id);
+      events.onRemoved.emit(id, { windowId: 1, isWindowClosing: false });
+      if (fallbackId) activate(fallbackId);
+      await flush();
+    },
     async restartBrowser() { chrome.runtime.onStartup.emit(); await flush(); },
     active() { return [...tabs.values()].find(tab => tab.active)?.id; },
   };
 }
 
-test('background restores history when Chrome activates a neighbor before removal', async () => {
+test('background ignores the neighbor Chrome activates after removal', async () => {
   const b = browser();
   await b.flush();
   await b.visit(1); await b.visit(3);
@@ -82,6 +95,30 @@ test('background restores history when Chrome activates a neighbor before remova
   await b.flush();
   assert.equal(b.active(), 1);
   assert.deepEqual(b.updates, [1]);
+  assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
+});
+
+test('background supports activation-before-removal event ordering', async () => {
+  const b = browser();
+  await b.flush();
+  await b.visit(1); await b.visit(3);
+  b.closeActivationFirst(3, 2);
+  await b.flush();
+  assert.equal(b.active(), 1);
+  assert.deepEqual(b.updates, [1]);
+});
+
+test('background does not retain a close-selected neighbor across consecutive closes', async () => {
+  const b = browser();
+  await b.flush();
+  for (const id of [1, 2, 4]) await b.visit(id);
+  b.close(4, 3);
+  await b.flush();
+  assert.equal(b.active(), 2);
+  assert.deepEqual(b.stored.sessionState.windowHistory['1'], [2, 1]);
+  b.close(2, 3);
+  await b.flush();
+  assert.equal(b.active(), 1);
 });
 
 test('background handles consecutive removals queued before restore finishes', async () => {
@@ -119,4 +156,14 @@ test('background restores saved history after worker restart and resets it on br
   await b.visit(4);
   await b.restartBrowser();
   assert.deepEqual(b.stored.sessionState.windowHistory['1'], [4]);
+});
+
+test('background preserves the just-closed tab while hydrating a cold worker', async () => {
+  const b = browser();
+  await b.flush();
+  await b.visit(1); await b.visit(3);
+  await b.restartWorkerOnClose(3, 2);
+  assert.equal(b.active(), 1);
+  assert.deepEqual(b.updates, [1]);
+  assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
 });

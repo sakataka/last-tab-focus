@@ -504,13 +504,37 @@ export function resolvePendingRestoreActivation({
   }
 
   const timeDelta = eventTime - pendingRestore.removalTime;
-  const isExpired = !Number.isFinite(timeDelta) || timeDelta > pendingRestore.restoreWindowMs;
+  const isExpired =
+    !Number.isFinite(timeDelta) ||
+    timeDelta < 0 ||
+    timeDelta > pendingRestore.restoreWindowMs;
   if (isExpired) {
     return {
       action: 'expired',
       windowHistory,
       lastActivationByWindow,
       previousHistory,
+    };
+  }
+
+  const isCloseInducedTransientActivation =
+    pendingRestore.awaitingChromeActivation === true &&
+    activatedTabId !== pendingRestore.targetTabId &&
+    Number.isFinite(pendingRestore.transientActivationWindowMs) &&
+    timeDelta <= pendingRestore.transientActivationWindowMs;
+  if (isCloseInducedTransientActivation) {
+    const nextWindowHistory = setWindowHistory(
+      windowHistory,
+      windowId,
+      pendingRestore.historyAfterClose,
+      MAX_HISTORY_SIZE,
+    );
+
+    return {
+      action: 'transient',
+      windowHistory: nextWindowHistory,
+      lastActivationByWindow,
+      previousHistory: getWindowHistory(nextWindowHistory, windowId),
     };
   }
 

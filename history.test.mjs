@@ -497,6 +497,35 @@ test('resolvePendingRestoreActivation treats unexpected activation as user overr
   });
 });
 
+test('resolvePendingRestoreActivation ignores Chrome neighbor activation after removal', () => {
+  const resolution = resolvePendingRestoreActivation({
+    windowHistory: {
+      '1': [99, 20, 10],
+    },
+    lastActivationByWindow: {},
+    windowId: 1,
+    activatedTabId: 99,
+    eventTime: 1010,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+      transientActivationWindowMs: 25,
+      awaitingChromeActivation: true,
+    },
+  });
+
+  assert.deepEqual(resolution, {
+    action: 'transient',
+    windowHistory: {
+      '1': [20, 10],
+    },
+    lastActivationByWindow: {},
+    previousHistory: [20, 10],
+  });
+});
+
 test('resolvePendingRestoreActivation confirms expected restore target', () => {
   const resolution = resolvePendingRestoreActivation({
     windowHistory: {

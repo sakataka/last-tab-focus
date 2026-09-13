@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.12
+
+- Prevent Chrome's temporary neighboring-tab activation after a close from entering focus history
+- Preserve the just-closed tab's persisted history while a suspended service worker starts
+- Test both current removal-before-activation ordering and older activation-before-removal ordering
+
 ## 1.1.11
 
 - Rewrite short and long store descriptions in all six supported languages

@@ -86,3 +86,10 @@ Automated background tests use a simulated Chrome event/API boundary. They cover
 - Chrome for Testing 153.0.8010.12, isolated persistent profile, extension 1.1.11 loaded: actual `chrome.tabs` activation/removal events restored a non-neighbor tab and walked back through consecutive closes.
 - English/Japanese website: all eight FAQ entries opened and closed; no horizontal overflow or broken images at 1280, 420, and 390 CSS pixels. Desktop and mobile screenshots inspected.
 - The browser check used headless Chrome and API-driven closes. Native close-button/keyboard input, idle worker suspension, and other operating systems remain manual checks; this run does not claim those were verified.
+
+## Verification recorded on 2026-09-13
+
+- `node --test *.test.mjs`: 32 tests passed, including removal-before-activation, activation-before-removal, consecutive-close history, and cold-worker hydration regressions.
+- Chrome for Testing 153.0.8010.12, isolated profile, extension 1.1.12 loaded: closing C restored B and then closing B restored A while an unrelated neighboring tab remained open.
+- The same sequence passed after explicitly stopping the extension service worker immediately before closing C; the first close after the cold start restored B.
+- The browser check used headless Chrome and API-driven closes. Native close-button/keyboard input, a natural 30-second idle termination, and other operating systems remain manual checks.
