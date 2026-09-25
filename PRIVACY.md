@@ -1,6 +1,6 @@
 # Privacy Policy for Last Tab Focus
 
-**Last Updated: March 29, 2026**
+**Last Updated: September 25, 2026**
 
 ## Overview
 
@@ -16,10 +16,12 @@ Last Tab Focus is a single-purpose Chrome extension. It only changes tab close b
 - Tab opener relationships used to return to the previously used tab after closing
 - Tab focus history within the current browser session
 
+The extension requests only the `storage` permission. It does not request the `tabs` permission or any host permissions, so it cannot read page URLs, titles, or content.
+
 ### How We Use Data
 
 - **Tab IDs**: Used only to track the last used tab in the current window
-- **Tab History**: Stored temporarily in memory to determine which tab to focus when another tab is closed
+- **Tab History**: Stored temporarily to determine which tab to focus when another tab is closed
 - **No External Transmission**: All data processing happens locally within your browser
 
 ### What We Don't Collect
@@ -32,9 +34,9 @@ Last Tab Focus is a single-purpose Chrome extension. It only changes tab close b
 
 ## Data Storage and Retention
 
-- **Local Only**: All data is stored locally in your browser's memory
-- **Session-Based**: Tab history is kept only for the current browser session and is reset when the browser session ends or the extension is reloaded/updated
-- **In-Memory Storage**: Tab history is stored with Chrome's session storage and is not written to external services
+- **Local Only**: Tab IDs, window IDs, opener relationships, and focus history are stored with Chrome's `storage.session` API, which keeps data in memory and does not write it to disk
+- **Session-Based**: Tab history is kept only for the current browser session and is reset when Chrome restarts or the extension is reloaded/updated
+- **No URLs or Page Data**: The extension never stores page URLs, titles, or content
 - **No External Servers**: The extension does not communicate with any external servers
 
 ## Third-Party Data Sharing

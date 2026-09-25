@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Remove the placeholder author field from the manifest
+- Clarify in the privacy policy and store descriptions that only the `storage` permission is used and no URLs, titles, or page content are read
+- No extension behavior, permission, storage, or network changes
+
 ## 1.1.12
 
 - Prevent Chrome's temporary neighboring-tab activation after a close from entering focus history

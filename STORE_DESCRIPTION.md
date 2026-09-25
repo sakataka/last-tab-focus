@@ -14,7 +14,7 @@ To try it after installing, switch between two tabs and close the current one. N
 
 Your tab order stays in your browser for the current session. It is not kept when you restart Chrome. If there is no earlier tab to return to, Chrome chooses the next tab as usual. This extension does not reopen closed tabs.
 
-No analytics, tracking, or external connections. No browsing data is sent anywhere.
+It needs only the storage permission and does not read page addresses, titles, or content. No analytics, tracking, or external connections. No browsing data is sent anywhere.
 
 Questions or problems? Visit the website for help, or report an issue on GitHub:
 https://sakataka.github.io/last-tab-focus/
@@ -32,7 +32,7 @@ https://github.com/sakataka/last-tab-focus/issues
 
 タブを使った順番はブラウザ内だけに保存し、Chrome を再起動するとリセットされます。戻れる履歴がない場合は、Chrome の通常の動作になります。閉じたタブを開き直す機能ではありません。
 
-利用状況の解析やトラッキング、外部通信は行いません。閲覧データが外部に送られることもありません。
+必要な権限は storage のみで、ページの URL やタイトル、内容は読み取りません。利用状況の解析やトラッキング、外部通信は行いません。閲覧データが外部に送られることもありません。
 
 使い方で迷ったときは公式サイトをご覧ください。不具合は GitHub で受け付けています。日本語で報告できます。
 https://sakataka.github.io/last-tab-focus/ja/
@@ -50,7 +50,7 @@ https://github.com/sakataka/last-tab-focus/issues
 
 标签页的使用顺序只保存在浏览器内，重启 Chrome 后会清空。如果没有可返回的使用记录，Chrome 会按原来的方式选择下一个标签页。本扩展不会重新打开已关闭的标签页。
 
-不做使用情况分析，不跟踪用户，不连接外部服务，也不发送浏览数据。
+仅需要 storage 权限，不读取网页地址、标题或内容。不做使用情况分析，不跟踪用户，不连接外部服务，也不发送浏览数据。
 
 使用说明和常见问题请见官网；遇到问题可在 GitHub 反馈：
 https://sakataka.github.io/last-tab-focus/
@@ -68,7 +68,7 @@ https://github.com/sakataka/last-tab-focus/issues
 
 分頁的使用順序只保存在瀏覽器裡，重新啟動 Chrome 後就會清除。如果沒有可返回的使用紀錄，Chrome 會依原本的方式選擇下一個分頁。這個擴充功能不會重新開啟已關閉的分頁。
 
-不分析使用情況、不追蹤使用者、不連線到外部服務，也不傳送瀏覽資料。
+只需要 storage 權限，不讀取網頁網址、標題或內容。不分析使用情況、不追蹤使用者、不連線到外部服務，也不傳送瀏覽資料。
 
 使用說明與常見問題請見官網；遇到問題可以到 GitHub 回報：
 https://sakataka.github.io/last-tab-focus/
@@ -86,7 +86,7 @@ https://github.com/sakataka/last-tab-focus/issues
 
 Порядок вкладок хранится только в браузере и сбрасывается при перезапуске Chrome. Если истории ещё нет, Chrome выбирает следующую вкладку как обычно. Уже закрытые вкладки расширение не открывает.
 
-Нет аналитики, отслеживания и обращений к внешним сервисам. Данные о просмотре никуда не отправляются.
+Расширению нужно только разрешение storage; оно не читает адреса, заголовки и содержимое страниц. Нет аналитики, отслеживания и обращений к внешним сервисам. Данные о просмотре никуда не отправляются.
 
 Инструкции и ответы на частые вопросы — на сайте. Об ошибке можно сообщить на GitHub:
 https://sakataka.github.io/last-tab-focus/
@@ -104,7 +104,7 @@ Per provarla dopo l’installazione, passa da una scheda all’altra e chiudi qu
 
 L’ordine delle schede rimane nel browser e viene azzerato al riavvio di Chrome. Se non c’è una scheda precedente a cui tornare, Chrome sceglie la successiva come al solito. L’estensione non riapre le schede già chiuse.
 
-Nessuna analisi dell’utilizzo, nessun tracciamento e nessuna connessione a servizi esterni. I dati di navigazione non vengono inviati da nessuna parte.
+Richiede solo l’autorizzazione storage e non legge indirizzi, titoli o contenuti delle pagine. Nessuna analisi dell’utilizzo, nessun tracciamento e nessuna connessione a servizi esterni. I dati di navigazione non vengono inviati da nessuna parte.
 
 Trovi le istruzioni e le risposte alle domande frequenti sul sito. Per segnalare un problema, usa GitHub:
 https://sakataka.github.io/last-tab-focus/
