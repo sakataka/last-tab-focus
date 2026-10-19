@@ -167,3 +167,16 @@ test('background preserves the just-closed tab while hydrating a cold worker', a
   assert.deepEqual(b.updates, [1]);
   assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
 });
+
+test('background keeps a pending restore when Chrome closes the activated neighbor too', async () => {
+  // chrome.tabs.remove([active, neighbor]) reports: remove active, activate
+  // neighbor, remove neighbor, activate the next tab.
+  const b = browser();
+  await b.flush();
+  await b.visit(1); await b.visit(2);
+  b.close(2, 3); b.close(3, 4);
+  await b.flush();
+  assert.equal(b.active(), 1);
+  assert.deepEqual(b.updates, [1]);
+  assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
+});

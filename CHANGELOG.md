@@ -4,7 +4,8 @@
 
 - Remove the placeholder author field from the manifest
 - Clarify in the privacy policy and store descriptions that only the `storage` permission is used and no URLs, titles, or page content are read
-- No extension behavior, permission, storage, or network changes
+- Keep restoring the previously active tab when several tabs, including the active tab and its neighbor, are closed together (for example by `chrome.tabs.remove([...])`)
+- No permission, storage, or network changes
 
 ## 1.1.12
 

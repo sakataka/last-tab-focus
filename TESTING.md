@@ -93,3 +93,9 @@ Automated background tests use a simulated Chrome event/API boundary. They cover
 - Chrome for Testing 153.0.8010.12, isolated profile, extension 1.1.12 loaded: closing C restored B and then closing B restored A while an unrelated neighboring tab remained open.
 - The same sequence passed after explicitly stopping the extension service worker immediately before closing C; the first close after the cold start restored B.
 - The browser check used headless Chrome and API-driven closes. Native close-button/keyboard input, a natural 30-second idle termination, and other operating systems remain manual checks.
+
+## Verification recorded on 2026-10-19
+
+- `node --test *.test.mjs`: 33 tests passed, including a regression for closing the active tab together with the neighbor Chrome activates.
+- Chrome for Testing (playwright chromium-1243), isolated profile, unpacked working tree loaded: after A → B → C, `chrome.tabs.remove([C, D])` and `chrome.tabs.remove([before C, C, D])` restored B in 5 of 5 runs each; before the fix both ended on the next neighbor in 3 of 3 runs. A single close and `chrome.tabs.remove([D, C])` still restored B.
+- The browser check used headless Chrome and API-driven closes. Native multi-selection close (Shift-click + Ctrl+W / Command+W) was not exercised and remains a manual check.

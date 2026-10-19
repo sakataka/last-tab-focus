@@ -392,7 +392,22 @@ async function handleTabRemoved(tabId, removeInfo, eventTime) {
   windowHistory = restorePlan.windowHistory;
   tabMetadata = removeTabMetadata(tabMetadata, tabId);
   lastActivationByWindow = removeTabFromActivationByWindow(lastActivationByWindow, tabId);
-  delete pendingRestoreByWindow[String(removeInfo.windowId)];
+
+  const windowKey = String(removeInfo.windowId);
+  const pendingRestore = pendingRestoreByWindow[windowKey];
+  if (restorePlan.removedWasMostRecent || removeInfo.isWindowClosing) {
+    delete pendingRestoreByWindow[windowKey];
+  } else if (pendingRestore && typeof pendingRestore === 'object') {
+    // chrome.tabs.remove([active, neighbor]) removes the neighbor Chrome just
+    // activated before the restore runs. Closing such a background tab must
+    // not cancel the restore for the tab the user actually closed.
+    pendingRestoreByWindow[windowKey] = {
+      ...pendingRestore,
+      historyAfterClose: Array.isArray(pendingRestore.historyAfterClose)
+        ? pendingRestore.historyAfterClose.filter((currentTabId) => currentTabId !== tabId)
+        : [],
+    };
+  }
 
   await persistState();
 
