@@ -7,7 +7,7 @@ import * as history from './history.mjs';
 const source = readFileSync(new URL('./background.js', import.meta.url), 'utf8')
   .replace(/import \{([\s\S]*?)\} from '\.\/history\.mjs';/, 'const {$1} = history;');
 
-function browser(stored = {}) {
+function browser(stored = {}, { failedSessionReads = 0 } = {}) {
   const tabs = new Map([1, 2, 3, 4].map(id => [id, { id, windowId: 1, active: id === 1 }]));
   const updates = [];
   const errors = [];
@@ -28,7 +28,10 @@ function browser(stored = {}) {
     runtime: { onStartup: event(), onInstalled: event() },
     windows: { onRemoved: event() },
     storage: { session: {
-      async get(key) { return { [key]: structuredClone(stored[key]) }; },
+      async get(key) {
+        if (failedSessionReads > 0) { failedSessionReads -= 1; throw new Error('session storage unavailable'); }
+        return { [key]: structuredClone(stored[key]) };
+      },
       async set(value) { Object.assign(stored, structuredClone(value)); },
     } },
     tabs: {
@@ -55,11 +58,12 @@ function browser(stored = {}) {
       await pending;
       if (pending === vm.runInContext('historyTaskQueue', context)) break;
     }
-    assert.deepEqual(errors, []);
+    assert.deepEqual(errors.filter(([message]) => !String(message).includes('Failed to hydrate')), []);
   }
   startWorker();
   return {
-    tabs, stored, updates, flush,
+    tabs, stored, updates, errors, flush,
+    failSessionReads(count) { failedSessionReads = count; },
     async visit(id) { now += 100; activate(id); await flush(); },
     close(id, fallbackId) {
       tabs.delete(id);
@@ -178,5 +182,17 @@ test('background keeps a pending restore when Chrome closes the activated neighb
   await b.flush();
   assert.equal(b.active(), 1);
   assert.deepEqual(b.updates, [1]);
+  assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
+});
+
+test('background retries hydration before handling an event instead of overwriting saved history', async () => {
+  const b = browser();
+  await b.flush();
+  await b.visit(1); await b.visit(3);
+  // The cold worker's first read and the read for the close event both fail.
+  b.failSessionReads(2);
+  await b.restartWorkerOnClose(3, 2);
+  assert.equal(b.errors.length, 2);
+  assert.equal(b.active(), 1);
   assert.deepEqual(b.stored.sessionState.windowHistory['1'], [1]);
 });

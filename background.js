@@ -116,15 +116,17 @@ function enqueueHistoryTask(label, task) {
 }
 
 async function ensureHistoryLoaded() {
-  if (historyLoaded) {
-    return;
-  }
+  // A failed hydration leaves historyLoaded = false. Retry here instead of
+  // letting the caller run on empty state, which would persist that empty
+  // state over the saved history. hydrateState() gives up and falls back to an
+  // empty state after MAX_HYDRATE_ATTEMPTS, so this loop always ends.
+  while (!historyLoaded) {
+    if (!historyLoadPromise) {
+      historyLoadPromise = hydrateState();
+    }
 
-  if (!historyLoadPromise) {
-    historyLoadPromise = hydrateState();
+    await historyLoadPromise;
   }
-
-  await historyLoadPromise;
 }
 
 async function hydrateState() {
