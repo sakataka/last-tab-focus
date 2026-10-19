@@ -6,6 +6,11 @@
 - Clarify in the privacy policy and store descriptions that only the `storage` permission is used and no URLs, titles, or page content are read
 - Keep restoring the previously active tab when several tabs, including the active tab and its neighbor, are closed together (for example by `chrome.tabs.remove([...])`)
 - Retry loading the saved session history before handling a tab event, so a failed read on a waking service worker no longer overwrites that history with an empty one
+- Restore the previously active tab even when Chrome's automatic switch to a neighboring tab arrives late on a busy browser: the first tab switch after the active tab closes is now treated as Chrome's, instead of only a switch within 25ms
+- Widen the window for Chrome reporting that switch before the close from 25ms to 150ms, which is still shorter than a person can select a tab and then close the previous one
+- Keep the tab the user selects right after closing a tab, even when the restore has not run yet
+- When the restore target closes before Chrome's switch arrives, restore the next candidate, or keep Chrome's selection in history when none remains
+- Ignore malformed pending-restore records in saved session state
 - No permission, storage, or network changes
 
 ## 1.1.12

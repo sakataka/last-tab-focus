@@ -1,5 +1,17 @@
 export const MAX_HISTORY_SIZE = 50;
 
+// Chrome may report the automatic activation of a neighboring tab before the
+// onRemoved event for the active tab that was closed. At activation time the
+// close is not known yet, so the only evidence is how close the two events are.
+// A switch to another tab followed by closing the previously active tab within
+// this window is treated as Chrome's automatic switch and rewound. A person
+// cannot do that in 150ms: after selecting tab B they must move the pointer to
+// tab A's close button (or middle-click A) and click again, which takes several
+// hundred milliseconds, and the keyboard close shortcut only closes the active
+// tab. The previous 25ms window was exceeded on a busy browser, so the neighbor
+// stayed selected and entered history.
+export const ACTIVATION_BEFORE_REMOVAL_WINDOW_MS = 150;
+
 function normalizeTabIdList(rawTabIds, maxHistorySize = MAX_HISTORY_SIZE) {
   const tabIds = [];
   const seenTabIds = new Set();
@@ -425,7 +437,7 @@ export function resolveCloseRestorePlan({
   lastActivationByWindow,
   tabMetadata,
   removalTime,
-  transientActivationWindowMs = 25,
+  transientActivationWindowMs = ACTIVATION_BEFORE_REMOVAL_WINDOW_MS,
 }) {
   const normalizedWindowHistory = normalizeWindowHistory(windowHistory, MAX_HISTORY_SIZE);
   const normalizedActivationByWindow = normalizeActivationByWindow(lastActivationByWindow);
@@ -517,11 +529,14 @@ export function resolvePendingRestoreActivation({
     };
   }
 
+  // Closing the active tab always makes Chrome activate another tab. The first
+  // activation after onRemoved is therefore Chrome's automatic switch, however
+  // late it arrives on a busy browser. Only that one activation is consumed;
+  // the caller clears awaitingChromeActivation, so later switches count as the
+  // user's. The expiry above still applies in case Chrome never sends one.
   const isCloseInducedTransientActivation =
     pendingRestore.awaitingChromeActivation === true &&
-    activatedTabId !== pendingRestore.targetTabId &&
-    Number.isFinite(pendingRestore.transientActivationWindowMs) &&
-    timeDelta <= pendingRestore.transientActivationWindowMs;
+    activatedTabId !== pendingRestore.targetTabId;
   if (isCloseInducedTransientActivation) {
     const nextWindowHistory = setWindowHistory(
       windowHistory,
@@ -559,6 +574,76 @@ export function resolvePendingRestoreActivation({
     windowHistory,
     lastActivationByWindow,
     previousHistory,
+  };
+}
+
+export function normalizePendingRestoreByWindow(rawPendingRestoreByWindow) {
+  if (
+    !rawPendingRestoreByWindow ||
+    typeof rawPendingRestoreByWindow !== 'object' ||
+    Array.isArray(rawPendingRestoreByWindow)
+  ) {
+    return {};
+  }
+
+  const normalizedPendingRestoreByWindow = {};
+
+  for (const [windowKey, rawRecord] of Object.entries(rawPendingRestoreByWindow)) {
+    const windowId = Number(windowKey);
+    if (
+      !isValidWindowId(windowId) ||
+      !rawRecord ||
+      typeof rawRecord !== 'object' ||
+      Array.isArray(rawRecord) ||
+      !isValidTabId(rawRecord.targetTabId) ||
+      !Number.isFinite(rawRecord.removalTime) ||
+      !Array.isArray(rawRecord.historyAfterClose)
+    ) {
+      continue;
+    }
+
+    normalizedPendingRestoreByWindow[String(windowId)] = {
+      targetTabId: rawRecord.targetTabId,
+      openerFallbackTabId: isValidTabId(rawRecord.openerFallbackTabId)
+        ? rawRecord.openerFallbackTabId
+        : null,
+      removalTime: rawRecord.removalTime,
+      historyAfterClose: normalizeTabIdList(rawRecord.historyAfterClose, MAX_HISTORY_SIZE),
+      awaitingChromeActivation: rawRecord.awaitingChromeActivation === true,
+    };
+  }
+
+  return normalizedPendingRestoreByWindow;
+}
+
+// Updates a pending restore after another tab in the same window closes, for
+// example the restore target closing in the same chrome.tabs.remove([...]).
+// Returns null when no restore target remains.
+export function removeTabFromPendingRestore(pendingRestore, removedTabId) {
+  const historyAfterClose = normalizeTabIdList(
+    pendingRestore?.historyAfterClose,
+    MAX_HISTORY_SIZE,
+  ).filter((tabId) => tabId !== removedTabId);
+  const openerFallbackTabId =
+    isValidTabId(pendingRestore?.openerFallbackTabId) &&
+    pendingRestore.openerFallbackTabId !== removedTabId
+      ? pendingRestore.openerFallbackTabId
+      : null;
+
+  let targetTabId = pendingRestore?.targetTabId;
+  if (!isValidTabId(targetTabId) || targetTabId === removedTabId) {
+    targetTabId = historyAfterClose[0] ?? openerFallbackTabId;
+  }
+
+  if (!isValidTabId(targetTabId)) {
+    return null;
+  }
+
+  return {
+    ...pendingRestore,
+    targetTabId,
+    openerFallbackTabId,
+    historyAfterClose,
   };
 }
 

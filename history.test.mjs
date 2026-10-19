@@ -2,10 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  ACTIVATION_BEFORE_REMOVAL_WINDOW_MS,
   MAX_HISTORY_SIZE,
   addToWindowHistory,
   getWindowHistory,
   normalizeActivationByWindow,
+  normalizePendingRestoreByWindow,
   normalizeTabMetadata,
   normalizeWindowHistory,
   moveTabInActivationByWindow,
@@ -18,6 +20,7 @@ import {
   replaceTabMetadata,
   removeTabFromActivationByWindow,
   removeTabFromAllWindowHistories,
+  removeTabFromPendingRestore,
   removeTabMetadata,
   removeWindowActivation,
   removeWindowHistory,
@@ -330,6 +333,7 @@ test('resolveCloseRestorePlan uses updated window metadata after a tab move', ()
 });
 
 test('resolveCloseRestorePlan ignores close-induced transient activation', () => {
+  // A busy browser delayed onRemoved 100ms after Chrome's neighbor activation.
   const restorePlan = resolveCloseRestorePlan({
     windowHistory: {
       '1': [40, 30, 20, 10],
@@ -339,7 +343,7 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
     lastActivationByWindow: {
       '1': {
         tabId: 40,
-        eventTime: 2175,
+        eventTime: 2100,
         previousHistory: [30, 20, 10],
       },
     },
@@ -347,7 +351,6 @@ test('resolveCloseRestorePlan ignores close-induced transient activation', () =>
       '30': { windowId: 1, openerTabId: 20 },
     },
     removalTime: 2200,
-    transientActivationWindowMs: 25,
   });
 
   assert.deepEqual(restorePlan, {
@@ -378,8 +381,8 @@ test('resolveCloseRestorePlan preserves a recent user-selected tab when a backgr
     tabMetadata: {
       '30': { windowId: 1, openerTabId: 20 },
     },
-    removalTime: 2050,
-    transientActivationWindowMs: 25,
+    // Longer than ACTIVATION_BEFORE_REMOVAL_WINDOW_MS: a person switched first.
+    removalTime: 2200,
   });
 
   assert.deepEqual(restorePlan, {
@@ -511,7 +514,6 @@ test('resolvePendingRestoreActivation ignores Chrome neighbor activation after r
       removalTime: 1000,
       historyAfterClose: [20, 10],
       restoreWindowMs: 1500,
-      transientActivationWindowMs: 25,
       awaitingChromeActivation: true,
     },
   });
@@ -576,4 +578,156 @@ test('resolvePendingRestoreActivation treats non-finite timestamps as expired', 
     pendingRestore: { ...base.pendingRestore, removalTime: NaN },
   });
   assert.equal(nanRemovalTime.action, 'expired');
+});
+
+test('resolveCloseRestorePlan uses a 150ms window for activation-before-removal', () => {
+  assert.equal(ACTIVATION_BEFORE_REMOVAL_WINDOW_MS, 150);
+  const plan = (gap) => resolveCloseRestorePlan({
+    windowHistory: { '1': [40, 30, 20] },
+    windowId: 1,
+    removedTabId: 30,
+    lastActivationByWindow: {
+      '1': { tabId: 40, eventTime: 1000, previousHistory: [30, 20] },
+    },
+    tabMetadata: {},
+    removalTime: 1000 + gap,
+  });
+
+  assert.equal(plan(30).usedTransientActivation, true);
+  assert.equal(plan(150).usedTransientActivation, true);
+  assert.equal(plan(151).usedTransientActivation, false);
+  assert.equal(plan(151).removedWasMostRecent, false);
+  assert.equal(plan(-1).usedTransientActivation, false);
+});
+
+test('resolvePendingRestoreActivation treats the first activation after removal as Chrome\'s regardless of delay', () => {
+  for (const delay of [0, 30, 100, 1000]) {
+    const resolution = resolvePendingRestoreActivation({
+      windowHistory: { '1': [99, 20, 10] },
+      lastActivationByWindow: {},
+      windowId: 1,
+      activatedTabId: 99,
+      eventTime: 1000 + delay,
+      pendingRestore: {
+        targetTabId: 20,
+        removalTime: 1000,
+        historyAfterClose: [20, 10],
+        restoreWindowMs: 1500,
+        awaitingChromeActivation: true,
+      },
+    });
+
+    assert.equal(resolution.action, 'transient', `delay ${delay}`);
+    assert.deepEqual(resolution.previousHistory, [20, 10]);
+  }
+});
+
+test('resolvePendingRestoreActivation treats a later activation as the user\'s once Chrome\'s was consumed', () => {
+  const resolution = resolvePendingRestoreActivation({
+    windowHistory: { '1': [20, 10] },
+    lastActivationByWindow: {},
+    windowId: 1,
+    activatedTabId: 98,
+    eventTime: 1005,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+      awaitingChromeActivation: false,
+    },
+  });
+
+  assert.equal(resolution.action, 'override');
+});
+
+test('resolvePendingRestoreActivation expires a wait that Chrome never answered', () => {
+  const resolution = resolvePendingRestoreActivation({
+    windowHistory: { '1': [20, 10] },
+    lastActivationByWindow: {},
+    windowId: 1,
+    activatedTabId: 98,
+    eventTime: 2501,
+    pendingRestore: {
+      targetTabId: 20,
+      removalTime: 1000,
+      historyAfterClose: [20, 10],
+      restoreWindowMs: 1500,
+      awaitingChromeActivation: true,
+    },
+  });
+
+  assert.equal(resolution.action, 'expired');
+});
+
+test('normalizePendingRestoreByWindow drops malformed records', () => {
+  assert.deepEqual(normalizePendingRestoreByWindow([{ targetTabId: 1 }]), {});
+  assert.deepEqual(normalizePendingRestoreByWindow(null), {});
+  assert.deepEqual(
+    normalizePendingRestoreByWindow({
+      '1': {
+        targetTabId: 20,
+        openerFallbackTabId: 'x',
+        removalTime: 1000,
+        historyAfterClose: [20, '10', -1, 20],
+        awaitingChromeActivation: 'yes',
+      },
+      '2': [20],
+      '3': { targetTabId: 20, removalTime: 1000 },
+      '4': { targetTabId: -1, removalTime: 1000, historyAfterClose: [] },
+      '5': { targetTabId: 20, removalTime: NaN, historyAfterClose: [] },
+      bad: { targetTabId: 20, removalTime: 1000, historyAfterClose: [] },
+      '6': {
+        targetTabId: 30,
+        openerFallbackTabId: 10,
+        removalTime: 5,
+        historyAfterClose: [30],
+        awaitingChromeActivation: true,
+      },
+    }),
+    {
+      '1': {
+        targetTabId: 20,
+        openerFallbackTabId: null,
+        removalTime: 1000,
+        historyAfterClose: [20, 10],
+        awaitingChromeActivation: false,
+      },
+      '6': {
+        targetTabId: 30,
+        openerFallbackTabId: 10,
+        removalTime: 5,
+        historyAfterClose: [30],
+        awaitingChromeActivation: true,
+      },
+    },
+  );
+});
+
+test('removeTabFromPendingRestore moves the target when it closes in the same batch', () => {
+  const pending = {
+    targetTabId: 20,
+    openerFallbackTabId: 5,
+    removalTime: 1000,
+    historyAfterClose: [20, 10],
+    awaitingChromeActivation: true,
+  };
+
+  assert.deepEqual(removeTabFromPendingRestore(pending, 99), {
+    ...pending,
+    historyAfterClose: [20, 10],
+  });
+  assert.deepEqual(removeTabFromPendingRestore(pending, 20), {
+    ...pending,
+    targetTabId: 10,
+    historyAfterClose: [10],
+  });
+  assert.deepEqual(
+    removeTabFromPendingRestore({ ...pending, historyAfterClose: [20] }, 20),
+    { ...pending, targetTabId: 5, historyAfterClose: [] },
+  );
+  assert.deepEqual(
+    removeTabFromPendingRestore({ ...pending, targetTabId: 5, historyAfterClose: [] }, 5),
+    null,
+  );
 });

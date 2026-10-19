@@ -78,6 +78,22 @@ Repeat the basic close test with the tab close button and Ctrl+W / Command+W. Re
     - Confirm that the old focus order is not assumed
     - Build a new A → B → C history and verify closing C returns to B
 
+13. Close while Chrome is busy
+    - Open the service worker console from `chrome://extensions/` and register a listener that delays the next event: `chrome.tabs.onRemoved.addListener(() => { const end = Date.now() + 100; while (Date.now() < end) {} })`
+    - Activate A → B → C (wait about a second between switches), then close C with the tab close button
+    - Confirm focus returns to B, not to the tab next to C; then close B and confirm A
+    - Reload the extension afterwards to remove the extra listener
+
+14. Manual switch before closing the previous tab
+    - Activate A → B → C, click A, and then close C with its close button as quickly as you can
+    - Confirm A stays active; the extension must not pull focus to B
+    - A switch followed by the close within 150ms is treated as Chrome's own switch; a person cannot click that fast, so record any failure with the timing
+
+15. Close several tabs at once
+    - Activate A → B → C, then Shift-click the tab to the right of C so both are selected
+    - Close them with Ctrl+W / Command+W and confirm focus returns to B
+    - Repeat with a selection that also includes B and confirm focus returns to A
+
 Automated background tests use a simulated Chrome event/API boundary. They cover queue ordering and persisted state, but do not replace these real-browser checks or prove that Chrome emits events in every simulated order.
 
 ## Verification recorded on 2026-09-06
@@ -99,3 +115,11 @@ Automated background tests use a simulated Chrome event/API boundary. They cover
 - `node --test *.test.mjs`: 33 tests passed, including a regression for closing the active tab together with the neighbor Chrome activates.
 - Chrome for Testing (playwright chromium-1243), isolated profile, unpacked working tree loaded: after A → B → C, `chrome.tabs.remove([C, D])` and `chrome.tabs.remove([before C, C, D])` restored B in 5 of 5 runs each; before the fix both ended on the next neighbor in 3 of 3 runs. A single close and `chrome.tabs.remove([D, C])` still restored B.
 - The browser check used headless Chrome and API-driven closes. Native multi-selection close (Shift-click + Ctrl+W / Command+W) was not exercised and remains a manual check.
+
+## Verification recorded on 2026-10-19 (close-event timing)
+
+- `node --test *.test.mjs`: 54 tests passed. New regressions cover Chrome's switch arriving 30, 100, and 1000ms after removal; removal arriving 30 and 100ms after the switch; a manual switch 200ms before closing the previous tab; a batch close whose last switch is late; a selection right after Chrome's switch; an unrelated background close; a wait Chrome never answers; a restore target closing before Chrome's switch; and malformed saved pending restores. Before the fix, 10 of them failed.
+- Chrome for Testing 153 (playwright chromium-1243), headless, isolated profile, unpacked working tree loaded, driven through the service worker with the DevTools protocol. Chrome reported removal before the switch in every run. A listener that blocked the worker for 30, 100, or 400ms after `onRemoved` delayed the switch by that much.
+  - Before the fix (HEAD c45733e): with every delay the neighbor stayed active and became the head of history; `chrome.tabs.remove([C, D])` with a 100ms delay ended on the next neighbor; selecting E right after the close kept E but left the neighbor in history.
+  - After the fix, 8 of 8 runs: each delay restored B and history equaled the pre-close history without C; the batch close restored B; the immediate selection of E kept E, followed by the pre-close history. In 3 of 3 runs, a switch to A 200ms before closing background C kept A, and a switch 100ms before the close was rewound to B, as designed for the 150ms window.
+- The activation-before-removal ordering did not occur in this Chrome, so it is covered only by the simulated tests. Native close-button, keyboard, and multi-selection input were not exercised; checklist items 13 to 15 remain manual checks.
