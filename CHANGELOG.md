@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.13
 
 - Remove the placeholder author field from the manifest
 - Clarify in the privacy policy and store descriptions that only the `storage` permission is used and no URLs, titles, or page content are read
